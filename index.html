@@ -23,11 +23,15 @@
   <!-- Scroll Progress -->
   <div class="scroll-progress"></div>
 
-  <!-- Page Loader -->
-  <div class="page-loader">
-    <img src="logo.png" alt="LAYA" class="loader-logo">
-    <div class="loader-line"><div class="loader-line-fill"></div></div>
-    <div class="loader-text">Architektura & Design</div>
+  <!-- Page Loader — Canvas Wireframe Room -->
+  <div class="page-loader" id="page-loader">
+    <canvas class="loader-canvas" id="loader-canvas"></canvas>
+    <div class="loader-progress">
+      <div class="loader-bar-track">
+        <div class="loader-bar-fill" id="loader-bar-fill"></div>
+      </div>
+      <div class="loader-pct" id="loader-pct">0%</div>
+    </div>
   </div>
 
   <!-- Header -->
@@ -93,15 +97,12 @@
         <span class="line"><span class="line-inner">Design</span></span>
       </h1>
 
-      <div class="hero-subtitle-row">
-        <span class="hero-tagline">Tvoříme prostory, které vyprávějí příběhy</span>
-        <div class="hero-divider-line"></div>
+      <div class="hero-btn-wrap">
+        <a href="portfolio.html" class="hero-portfolio-btn">
+          <span>Zobrazit portfolio</span>
+          <span class="btn-arrow">→</span>
+        </a>
       </div>
-
-      <a href="portfolio.html" class="hero-portfolio-btn">
-        <span>Zobrazit portfolio</span>
-        <span class="btn-arrow">→</span>
-      </a>
     </div>
 
     <div class="hero-counter">
@@ -114,27 +115,6 @@
       <div class="scroll-line"></div>
     </div>
   </section>
-
-  <!-- ═══════════════════════════════
-       MARQUEE STRIP
-       ═══════════════════════════════ -->
-  <div class="marquee-section" data-theme="dark">
-    <div class="marquee-track">
-      <div class="marquee-item">Architektura <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Interiérový Design <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Konzultace <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Rekonstrukce <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Vizualizace <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Realizace <span class="marquee-dot"></span></div>
-      <!-- Duplicate for seamless loop -->
-      <div class="marquee-item">Architektura <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Interiérový Design <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Konzultace <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Rekonstrukce <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Vizualizace <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Realizace <span class="marquee-dot"></span></div>
-    </div>
-  </div>
 
   <!-- ═══════════════════════════════
        ABOUT — CLIP-PATH REVEAL
@@ -289,27 +269,27 @@
         <div class="showcase-list-side">
           <div class="showcase-label">Vybrané projekty</div>
 
-          <div class="showcase-item active" data-index="0">
+          <div class="showcase-item active" data-index="0" data-project="project_1.jpg" data-title="Hasičská Zbrojnice">
             <div class="showcase-item-title">Hasičská Zbrojnice</div>
             <div class="showcase-item-sub">Architektura</div>
           </div>
-          <div class="showcase-item" data-index="1">
+          <div class="showcase-item" data-index="1" data-project="project_5.jpg" data-title="Interiér Bytu Praha">
             <div class="showcase-item-title">Interiér Bytu Praha</div>
             <div class="showcase-item-sub">Interiérový design</div>
           </div>
-          <div class="showcase-item" data-index="2">
+          <div class="showcase-item" data-index="2" data-project="project_9.jpg" data-title="Moderní Kuchyně">
             <div class="showcase-item-title">Moderní Kuchyně</div>
             <div class="showcase-item-sub">Design kuchyně</div>
           </div>
-          <div class="showcase-item" data-index="3">
+          <div class="showcase-item" data-index="3" data-project="project_13.jpg" data-title="Obývací Pokoj">
             <div class="showcase-item-title">Obývací Pokoj</div>
             <div class="showcase-item-sub">Interiérový design</div>
           </div>
-          <div class="showcase-item" data-index="4">
+          <div class="showcase-item" data-index="4" data-project="project_17.jpg" data-title="Dětský Pokoj">
             <div class="showcase-item-title">Dětský Pokoj</div>
             <div class="showcase-item-sub">Interiérový design</div>
           </div>
-          <div class="showcase-item" data-index="5">
+          <div class="showcase-item" data-index="5" data-project="project_21.jpg" data-title="Rekonstrukce RD">
             <div class="showcase-item-title">Rekonstrukce RD</div>
             <div class="showcase-item-sub">Rekonstrukce</div>
           </div>
@@ -325,6 +305,23 @@
       </div>
     </div>
   </section>
+
+  <!-- ═══════════════════════════════
+       PROJECT MODAL
+       ═══════════════════════════════ -->
+  <div class="project-modal" id="project-modal">
+    <div class="project-modal-backdrop"></div>
+    <button class="project-modal-close">✕</button>
+    <button class="project-modal-nav project-modal-prev">←</button>
+    <button class="project-modal-nav project-modal-next">→</button>
+    <div class="project-modal-content">
+      <img src="" alt="" class="project-modal-image">
+    </div>
+    <div class="project-modal-info">
+      <div class="project-modal-title"></div>
+      <div class="project-modal-counter"><span class="current">01</span> / <span class="total">06</span></div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════
        CONTACT — SPLIT LAYOUT
