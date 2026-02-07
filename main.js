@@ -22,42 +22,7 @@ function initLenis() {
   gsap.ticker.lagSmoothing(0);
 }
 
-// ═══ TEXT SCRAMBLE EFFECT ═══
-class TextScramble {
-  constructor(el) {
-    this.el = el;
-    this.chars = '!<>-_\\/[]{}—=+*^?#________';
-    this.originalText = el.textContent;
-    this.isAnimating = false;
-  }
-  scramble() {
-    if (this.isAnimating) return;
-    this.isAnimating = true;
-    const text = this.originalText;
-    const length = text.length;
-    let iteration = 0;
-    const maxIterations = length * 3;
 
-    const interval = setInterval(() => {
-      this.el.textContent = text.split('').map((char, i) => {
-        if (char === ' ') return ' ';
-        if (i < iteration / 3) return text[i];
-        return this.chars[Math.floor(Math.random() * this.chars.length)];
-      }).join('');
-
-      iteration++;
-      if (iteration >= maxIterations) {
-        clearInterval(interval);
-        this.el.textContent = text;
-        this.isAnimating = false;
-      }
-    }, 30);
-  }
-  reset() {
-    this.el.textContent = this.originalText;
-    this.isAnimating = false;
-  }
-}
 
 // ═══════════════════════════════════════
 //  PAGE LOADER — ISOMETRIC WIREFRAME ROOM
@@ -696,13 +661,6 @@ function initHeader() {
 
   const sections = document.querySelectorAll('section[data-theme]');
 
-  // Text scramble on nav hover
-  const navLinks = document.querySelectorAll('.header-nav a');
-  navLinks.forEach(link => {
-    const scrambler = new TextScramble(link);
-    link.addEventListener('mouseenter', () => scrambler.scramble());
-  });
-
   const onScroll = () => {
     const scrollY = window.scrollY;
     const isScrolled = scrollY > 60;
@@ -1051,22 +1009,9 @@ function initStackingCards() {
       scrollTrigger: {
         trigger: card,
         start: 'top 80%',
-        toggleActions: 'play none none reverse'
+        toggleActions: 'play none none none'
       }
     });
-
-    if (i < cards.length - 1) {
-      gsap.to(card, {
-        scale: 0.95,
-        opacity: 0.6,
-        scrollTrigger: {
-          trigger: cards[i + 1],
-          start: 'top 80%',
-          end: 'top 40%',
-          scrub: true
-        }
-      });
-    }
   });
 }
 
@@ -1212,17 +1157,17 @@ function navigateProjectModal(direction) {
   if (newIndex < 0 || newIndex >= showcaseProjects.length) return;
   currentModalIndex = newIndex;
 
-  // Animate transition
+  // Animate transition — clean fade
   const modal = document.getElementById('project-modal');
   const img = modal?.querySelector('.project-modal-image');
   if (img) {
     gsap.to(img, {
-      opacity: 0, x: direction * -30, duration: 0.2, ease: 'power2.in',
+      opacity: 0, duration: 0.2, ease: 'power2.in',
       onComplete: () => {
         updateModalContent();
         gsap.fromTo(img,
-          { opacity: 0, x: direction * 30 },
-          { opacity: 1, x: 0, duration: 0.3, ease: 'power2.out' }
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3, ease: 'power2.out' }
         );
       }
     });
