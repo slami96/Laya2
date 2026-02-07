@@ -26,6 +26,7 @@ function initLenis() {
 
 // ═══════════════════════════════════════
 //  PAGE LOADER — ISOMETRIC WIREFRAME ROOM
+//  (Exact match of original laya-loader.html animation)
 // ═══════════════════════════════════════
 function initLoader() {
   const loaderEl = document.getElementById('page-loader');
@@ -36,574 +37,624 @@ function initLoader() {
   if (!loaderEl || !canvas) { initAll(); return; }
 
   const ctx = canvas.getContext('2d');
-  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-  let W, H, CX, CY, isoScale;
-  const COS30 = Math.cos(Math.PI / 6);
-  const SIN30 = Math.sin(Math.PI / 6);
+  let W, H;
 
   function resize() {
-    W = window.innerWidth; H = window.innerHeight;
-    canvas.width = W * DPR; canvas.height = H * DPR;
-    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    CX = W / 2; CY = H / 2;
-    isoScale = Math.min(W, H) * 0.07;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    recalcIso();
   }
-  resize();
+
+  // ─── Isometric math ───
+  const COS30 = Math.cos(Math.PI / 6);
+  const SIN30 = 0.5;
+  let isoScale, isoOffX, isoOffY;
+
+  function recalcIso() {
+    isoScale = Math.min(W, H) * 0.07;
+    isoOffX = W * 0.5;
+    isoOffY = H * 0.54;
+  }
 
   function iso(x, y, z) {
     return {
-      x: CX + (x - y) * COS30 * isoScale,
-      y: CY + (x + y) * SIN30 * isoScale - z * isoScale
+      x: (x - y) * COS30 * isoScale + isoOffX,
+      y: ((x + y) * SIN30 - z) * isoScale + isoOffY
     };
   }
 
-  // ═ State — all progress values 0→1
-  const S = {
-    grid: 0, floor: 0, walls: 0, window: 0, door: 0,
-    table: 0, chair: 0, shelf: 0, lamp: 0, plant: 0,
-    picture: 0, rug: 0, dims: 0,
-    glow: 0, dissolve: 0, particleAlpha: 0.2
-  };
+  resize();
+  window.addEventListener('resize', resize);
 
-  // Colors
-  const BLUE = 'rgba(120,155,180,';
-  const GOLD = 'rgba(194,164,126,';
-
-  function colorAt(a, warmth) {
-    const r = Math.round(120 + warmth * 74);
-    const g = Math.round(155 + warmth * 9);
-    const b = Math.round(180 - warmth * 54);
-    return `rgba(${r},${g},${b},${a})`;
-  }
-
-  // Room dims
+  // ─── Room dimensions (iso units) ───
   const RW = 7, RD = 5.5, RH = 3.8;
 
-  // Particles
-  const particles = [];
-  for (let i = 0; i < 50; i++) {
-    particles.push({
-      x: (Math.random() - 0.5) * RW * 1.5,
-      y: (Math.random() - 0.5) * RD * 1.5,
-      z: Math.random() * RH,
-      speed: 0.002 + Math.random() * 0.004,
-      wobble: Math.random() * Math.PI * 2,
-      size: 1 + Math.random() * 1.5
-    });
+  // ─── Animation state ───
+  const S = {
+    grid: 0, floor: 0,
+    wallL: 0, wallR: 0, wallB: 0, ceiling: 0,
+    window: 0, door: 0,
+    table: 0, chair: 0, shelf: 0, lamp: 0, plant: 0, picture: 0, rug: 0,
+    dims: 0, glow: 0, particles: 0, fadeOut: 0,
+  };
+
+  // ─── Colors ───
+  function goldAlpha(a) {
+    return `rgba(194,164,126,${a * (1 - S.fadeOut)})`;
   }
 
-  // ═ Drawing helpers
-  function line(ax, ay, az, bx, by, bz, progress, alpha, warmth) {
+  // ─── Drawing pen glow at tip ───
+  function drawPenTip(p, progress) {
+    if (progress <= 0 || progress >= 1) return;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = goldAlpha(0.7);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = goldAlpha(0.15);
+    ctx.fill();
+  }
+
+  // ─── Line with progress ───
+  function line(ax, ay, az, bx, by, bz, progress, lw, alpha) {
     if (progress <= 0) return;
+    const p = Math.min(progress, 1);
     const a = iso(ax, ay, az);
     const b = iso(bx, by, bz);
-    const p = Math.min(progress, 1);
     const ex = a.x + (b.x - a.x) * p;
     const ey = a.y + (b.y - a.y) * p;
 
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(ex, ey);
-    ctx.strokeStyle = colorAt(alpha, warmth || S.glow);
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = goldAlpha(alpha != null ? alpha : 0.8);
+    ctx.lineWidth = lw || 1.2;
     ctx.stroke();
 
-    // Pen tip glow
-    if (p < 0.98 && p > 0.02) {
-      ctx.beginPath();
-      ctx.arc(ex, ey, 3, 0, Math.PI * 2);
-      ctx.fillStyle = colorAt(alpha * 0.6, warmth || S.glow);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(ex, ey, 8, 0, Math.PI * 2);
-      ctx.fillStyle = colorAt(alpha * 0.15, warmth || S.glow);
-      ctx.fill();
-    }
+    drawPenTip({ x: ex, y: ey }, progress);
   }
 
-  function lineSeq(segments, progress, alpha) {
-    const total = segments.length;
-    for (let i = 0; i < total; i++) {
-      const segStart = i / total;
-      const segEnd = (i + 1) / total;
-      const segProgress = Math.max(0, Math.min(1, (progress - segStart) / (segEnd - segStart)));
-      if (segProgress > 0) {
-        const s = segments[i];
-        line(s[0], s[1], s[2], s[3], s[4], s[5], segProgress, alpha);
-      }
-    }
+  // ─── Multi-line sequence ───
+  function lineSeq(lines, progress, lw, alpha) {
+    if (progress <= 0) return;
+    const n = lines.length;
+    lines.forEach((l, i) => {
+      const start = i / n;
+      const end = (i + 1) / n;
+      const seg = Math.max(0, Math.min(1, (progress - start) / (end - start)));
+      line(l[0], l[1], l[2], l[3], l[4], l[5], seg, lw, alpha);
+    });
   }
 
-  // ═ Draw functions
+  // ─── Dashed line ───
+  function dashed(ax, ay, az, bx, by, bz, progress, alpha) {
+    if (progress <= 0) return;
+    const p = Math.min(progress, 1);
+    const a = iso(ax, ay, az);
+    const b = iso(bx, by, bz);
+    const ex = a.x + (b.x - a.x) * p;
+    const ey = a.y + (b.y - a.y) * p;
+    ctx.save();
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(ex, ey);
+    ctx.strokeStyle = goldAlpha(alpha || 0.25);
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // ─── Cross mark ───
+  function cross(x, y, z, progress, size) {
+    if (progress <= 0) return;
+    const s = (size || 4) * Math.min(progress, 1);
+    const c = iso(x, y, z);
+    ctx.beginPath();
+    ctx.moveTo(c.x - s, c.y);
+    ctx.lineTo(c.x + s, c.y);
+    ctx.moveTo(c.x, c.y - s);
+    ctx.lineTo(c.x, c.y + s);
+    ctx.strokeStyle = goldAlpha(0.35 * Math.min(progress, 1));
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+  }
+
+  // ─── Fill a 3D quad ───
+  function fillQuad(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, color) {
+    const a = iso(ax, ay, az);
+    const b = iso(bx, by, bz);
+    const c = iso(cx, cy, cz);
+    const d = iso(dx, dy, dz);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineTo(c.x, c.y);
+    ctx.lineTo(d.x, d.y);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  // ─── Particles ───
+  const dustParticles = [];
+  for (let i = 0; i < 50; i++) {
+    dustParticles.push({
+      x: Math.random(), y: Math.random(),
+      size: Math.random() * 1.5 + 0.5,
+      speed: Math.random() * 0.0003 + 0.0001,
+      drift: (Math.random() - 0.5) * 0.0002,
+      alpha: Math.random() * 0.35 + 0.1,
+    });
+  }
+
+  // ═══ DRAW EACH ELEMENT ═══
+
   function drawGrid() {
     if (S.grid <= 0) return;
-    const a = S.grid * 0.3;
-    ctx.strokeStyle = colorAt(a * 0.15, S.glow);
-    ctx.lineWidth = 0.5;
-    for (let i = -2; i <= RW + 2; i += 1) {
-      const a1 = iso(i, -2, 0);
-      const a2 = iso(i, RD + 2, 0);
-      ctx.beginPath(); ctx.moveTo(a1.x, a1.y); ctx.lineTo(a2.x, a2.y); ctx.stroke();
+    ctx.globalAlpha = S.grid * 0.15 * (1 - S.fadeOut);
+    for (let i = 0; i <= RW; i++) {
+      line(i, 0, 0, i, RD, 0, 1, 0.3, 0.12);
     }
-    for (let j = -2; j <= RD + 2; j += 1) {
-      const b1 = iso(-2, j, 0);
-      const b2 = iso(RW + 2, j, 0);
-      ctx.beginPath(); ctx.moveTo(b1.x, b1.y); ctx.lineTo(b2.x, b2.y); ctx.stroke();
+    for (let j = 0; j <= Math.floor(RD); j++) {
+      line(0, j, 0, RW, j, 0, 1, 0.3, 0.12);
     }
+    ctx.globalAlpha = 1;
   }
 
   function drawFloor() {
-    const p = S.floor;
-    if (p <= 0) return;
     lineSeq([
       [0, 0, 0, RW, 0, 0],
       [RW, 0, 0, RW, RD, 0],
       [RW, RD, 0, 0, RD, 0],
-      [0, RD, 0, 0, 0, 0]
-    ], p, 0.7);
-    // Floor fill
-    if (p > 0.6) {
-      const fa = (p - 0.6) / 0.4 * 0.04;
-      const c1 = iso(0, 0, 0), c2 = iso(RW, 0, 0), c3 = iso(RW, RD, 0), c4 = iso(0, RD, 0);
-      ctx.beginPath(); ctx.moveTo(c1.x, c1.y); ctx.lineTo(c2.x, c2.y);
-      ctx.lineTo(c3.x, c3.y); ctx.lineTo(c4.x, c4.y); ctx.closePath();
-      ctx.fillStyle = colorAt(fa, S.glow); ctx.fill();
-    }
+      [0, RD, 0, 0, 0, 0],
+    ], S.floor, 1.5, 0.8);
   }
 
   function drawWalls() {
-    const p = S.walls;
-    if (p <= 0) return;
-    // Right wall (x=RW)
-    const rp = Math.min(p * 2, 1);
-    line(RW, 0, 0, RW, 0, RH * rp, rp, 0.6);
-    line(RW, RD, 0, RW, RD, RH * rp, rp, 0.6);
-    if (rp > 0.3) line(RW, 0, RH * rp, RW, RD, RH * rp, (rp - 0.3) / 0.7, 0.5);
-    // Right wall fill
-    if (rp > 0.6) {
-      const fa = (rp - 0.6) / 0.4 * 0.03;
-      const c1 = iso(RW, 0, 0), c2 = iso(RW, RD, 0), c3 = iso(RW, RD, RH * rp), c4 = iso(RW, 0, RH * rp);
-      ctx.beginPath(); ctx.moveTo(c1.x, c1.y); ctx.lineTo(c2.x, c2.y);
-      ctx.lineTo(c3.x, c3.y); ctx.lineTo(c4.x, c4.y); ctx.closePath();
-      ctx.fillStyle = colorAt(fa, S.glow); ctx.fill();
+    const wh = RH;
+    // Back-left wall: x=0 face
+    if (S.wallL > 0) {
+      const h = wh * S.wallL;
+      line(0, 0, 0, 0, 0, h, 1, 1.5, 0.9);
+      line(0, RD, 0, 0, RD, h, 1, 1.5, 0.9);
+      if (S.wallL >= 1) line(0, 0, wh, 0, RD, wh, 1, 1.5, 0.9);
+      if (S.wallL > 0.6) {
+        const fa = (S.wallL - 0.6) / 0.4 * 0.035;
+        fillQuad(0, 0, 0, 0, RD, 0, 0, RD, h, 0, 0, h, goldAlpha(fa));
+      }
     }
-    // Left wall (y=RD)
-    const lp = Math.min(Math.max(p * 2 - 0.3, 0) / 0.7, 1);
-    if (lp > 0) {
-      line(0, RD, 0, 0, RD, RH * lp, lp, 0.6);
-      if (lp > 0.3) line(0, RD, RH * lp, RW, RD, RH * lp, (lp - 0.3) / 0.7, 0.5);
-      // Left wall fill
-      if (lp > 0.6) {
-        const fa = (lp - 0.6) / 0.4 * 0.03;
-        const c1 = iso(0, RD, 0), c2 = iso(RW, RD, 0), c3 = iso(RW, RD, RH * lp), c4 = iso(0, RD, RH * lp);
-        ctx.beginPath(); ctx.moveTo(c1.x, c1.y); ctx.lineTo(c2.x, c2.y);
-        ctx.lineTo(c3.x, c3.y); ctx.lineTo(c4.x, c4.y); ctx.closePath();
-        ctx.fillStyle = colorAt(fa, S.glow); ctx.fill();
+    // Back-right wall: y=0 face
+    if (S.wallR > 0) {
+      const h = wh * S.wallR;
+      line(0, 0, 0, 0, 0, h, 1, 1.3, 0.85);
+      line(RW, 0, 0, RW, 0, h, 1, 1.3, 0.85);
+      if (S.wallR >= 1) line(0, 0, wh, RW, 0, wh, 1, 1.3, 0.85);
+      if (S.wallR > 0.6) {
+        const fa = (S.wallR - 0.6) / 0.4 * 0.03;
+        fillQuad(0, 0, 0, RW, 0, 0, RW, 0, h, 0, 0, h, goldAlpha(fa));
       }
     }
   }
 
-  function drawWindow() {
-    const p = S.window;
-    if (p <= 0) return;
-    const wl = 1.5, wr = 4, wb = 1.2, wt = 3;
-    // Frame
+  function drawCeiling() {
+    if (S.ceiling <= 0) return;
     lineSeq([
-      [RW, wl, wb, RW, wr, wb],
-      [RW, wr, wb, RW, wr, wt],
-      [RW, wr, wt, RW, wl, wt],
-      [RW, wl, wt, RW, wl, wb]
-    ], p, 0.6);
-    // Mullions
-    if (p > 0.5) {
-      const mp = (p - 0.5) / 0.5;
-      const my = (wl + wr) / 2, mz = (wb + wt) / 2;
-      line(RW, my, wb, RW, my, wt, mp, 0.4);
-      line(RW, wl, mz, RW, wr, mz, mp, 0.4);
-    }
-    // Glass glow
-    if (p > 0.7) {
-      const ga = (p - 0.7) / 0.3 * 0.06;
-      const c1 = iso(RW, wl, wb), c2 = iso(RW, wr, wb), c3 = iso(RW, wr, wt), c4 = iso(RW, wl, wt);
-      ctx.beginPath(); ctx.moveTo(c1.x, c1.y); ctx.lineTo(c2.x, c2.y);
-      ctx.lineTo(c3.x, c3.y); ctx.lineTo(c4.x, c4.y); ctx.closePath();
-      ctx.fillStyle = `rgba(180,200,220,${ga})`; ctx.fill();
+      [0, 0, RH, RW, 0, RH],
+      [RW, 0, RH, RW, RD, RH],
+      [RW, RD, RH, 0, RD, RH],
+      [0, RD, RH, 0, 0, RH],
+    ], S.ceiling, 0.7, 0.35);
+  }
+
+  function drawWindow() {
+    if (S.window <= 0) return;
+    const wx1 = 1.5, wx2 = 4.5, wz1 = 1.2, wz2 = 3.0;
+    lineSeq([
+      [wx1, 0, wz1, wx2, 0, wz1],
+      [wx2, 0, wz1, wx2, 0, wz2],
+      [wx2, 0, wz2, wx1, 0, wz2],
+      [wx1, 0, wz2, wx1, 0, wz1],
+    ], S.window, 1.4, 0.9);
+
+    const mp = Math.max(0, (S.window - 0.5) / 0.5);
+    const mx = (wx1 + wx2) / 2;
+    const mz = (wz1 + wz2) / 2;
+    line(mx, 0, wz1, mx, 0, wz2, mp, 0.8, 0.6);
+    line(wx1, 0, mz, wx2, 0, mz, mp, 0.8, 0.6);
+
+    const sp = Math.max(0, (S.window - 0.7) / 0.3);
+    line(wx1 - 0.15, 0.1, wz1, wx2 + 0.15, 0.1, wz1, sp, 0.9, 0.7);
+
+    if (S.window > 0.8) {
+      const ga = (S.window - 0.8) / 0.2 * 0.06;
+      fillQuad(wx1, 0, wz1, wx2, 0, wz1, wx2, 0, wz2, wx1, 0, wz2, goldAlpha(ga));
     }
   }
 
   function drawDoor() {
-    const p = S.door;
-    if (p <= 0) return;
-    const dl = 0.8, dr = 2.2, dt = 3;
+    if (S.door <= 0) return;
+    const dy1 = 3.5, dy2 = 4.5, dz = 2.8;
     lineSeq([
-      [dl, RD, 0, dr, RD, 0],
-      [dr, RD, 0, dr, RD, dt],
-      [dr, RD, dt, dl, RD, dt],
-      [dl, RD, dt, dl, RD, 0]
-    ], p, 0.5);
-    // Handle
-    if (p > 0.8) {
-      const hp = iso(dr - 0.2, RD, dt * 0.45);
-      ctx.beginPath();
-      ctx.arc(hp.x, hp.y, 3, 0, Math.PI * 2);
-      ctx.strokeStyle = colorAt(0.5, S.glow);
-      ctx.lineWidth = 1; ctx.stroke();
-    }
-  }
+      [0, dy1, 0, 0, dy1, dz],
+      [0, dy1, dz, 0, dy2, dz],
+      [0, dy2, dz, 0, dy2, 0],
+    ], S.door, 1.2, 0.8);
 
-  function drawRug() {
-    const p = S.rug;
-    if (p <= 0) return;
-    const rx = 1.5, ry = 1.2, rw = 4, rd = 3;
-    lineSeq([
-      [rx, ry, 0, rx + rw, ry, 0],
-      [rx + rw, ry, 0, rx + rw, ry + rd, 0],
-      [rx + rw, ry + rd, 0, rx, ry + rd, 0],
-      [rx, ry + rd, 0, rx, ry, 0]
-    ], p, 0.3);
-    // Inner border
-    if (p > 0.6) {
-      const ip = (p - 0.6) / 0.4;
-      const m = 0.3;
-      lineSeq([
-        [rx + m, ry + m, 0, rx + rw - m, ry + m, 0],
-        [rx + rw - m, ry + m, 0, rx + rw - m, ry + rd - m, 0],
-        [rx + rw - m, ry + rd - m, 0, rx + m, ry + rd - m, 0],
-        [rx + m, ry + rd - m, 0, rx + m, ry + m, 0]
-      ], ip, 0.2);
+    if (S.door > 0.7) {
+      const hp = (S.door - 0.7) / 0.3;
+      const h = iso(0, dy1 + 0.15, 1.3);
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, 2.5 * hp, 0, Math.PI * 2);
+      ctx.strokeStyle = goldAlpha(0.6 * hp);
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
     }
   }
 
   function drawTable() {
-    const p = S.table;
-    if (p <= 0) return;
-    const tx = 2.5, ty = 2, tw = 2.2, td = 1.4, th = 1.1, legH = th;
-    // Top
+    if (S.table <= 0) return;
+    const tx = 2.5, ty = 2, tw = 2.2, td = 1.4, th = 1.05;
+
     lineSeq([
       [tx, ty, th, tx + tw, ty, th],
       [tx + tw, ty, th, tx + tw, ty + td, th],
       [tx + tw, ty + td, th, tx, ty + td, th],
-      [tx, ty + td, th, tx, ty, th]
-    ], Math.min(p * 1.5, 1), 0.6);
-    // Legs
-    if (p > 0.3) {
-      const lp = (p - 0.3) / 0.7;
-      line(tx + 0.15, ty + 0.15, th, tx + 0.15, ty + 0.15, 0, lp, 0.4);
-      line(tx + tw - 0.15, ty + 0.15, th, tx + tw - 0.15, ty + 0.15, 0, lp, 0.4);
-      line(tx + tw - 0.15, ty + td - 0.15, th, tx + tw - 0.15, ty + td - 0.15, 0, lp, 0.4);
-      line(tx + 0.15, ty + td - 0.15, th, tx + 0.15, ty + td - 0.15, 0, lp, 0.4);
-    }
-    // Laptop on table
-    if (p > 0.7) {
-      const lpp = (p - 0.7) / 0.3;
-      const lx = tx + 0.5, ly = ty + 0.3;
+      [tx, ty + td, th, tx, ty, th],
+    ], S.table, 1.3, 0.85);
+
+    const lp = Math.max(0, (S.table - 0.4) / 0.6);
+    const ins = 0.12;
+    [[tx + ins, ty + ins], [tx + tw - ins, ty + ins], [tx + tw - ins, ty + td - ins], [tx + ins, ty + td - ins]]
+      .forEach(([lx, ly]) => {
+        line(lx, ly, th, lx, ly, th - th * lp, 1, 0.7, 0.5);
+      });
+
+    if (S.table > 0.7) {
+      const ip = (S.table - 0.7) / 0.3;
       lineSeq([
-        [lx, ly, th + 0.01, lx + 1, ly, th + 0.01],
-        [lx + 1, ly, th + 0.01, lx + 1, ly + 0.7, th + 0.01],
-        [lx + 1, ly + 0.7, th + 0.01, lx, ly + 0.7, th + 0.01],
-        [lx, ly + 0.7, th + 0.01, lx, ly, th + 0.01]
-      ], lpp, 0.35);
+        [tx + 0.4, ty + 0.3, th, tx + 1.3, ty + 0.3, th],
+        [tx + 1.3, ty + 0.3, th, tx + 1.3, ty + 1, th],
+        [tx + 1.3, ty + 1, th, tx + 0.4, ty + 1, th],
+        [tx + 0.4, ty + 1, th, tx + 0.4, ty + 0.3, th],
+      ], ip, 0.6, 0.35);
+      if (ip > 0.5) {
+        const scrP = (ip - 0.5) * 2;
+        line(tx + 0.4, ty + 0.3, th, tx + 0.4, ty + 0.25, th + 0.6 * scrP, 1, 0.6, 0.35);
+        line(tx + 1.3, ty + 0.3, th, tx + 1.3, ty + 0.25, th + 0.6 * scrP, 1, 0.6, 0.35);
+        if (scrP > 0.8) {
+          line(tx + 0.4, ty + 0.25, th + 0.6, tx + 1.3, ty + 0.25, th + 0.6, 1, 0.6, 0.35);
+        }
+      }
+      if (ip > 0.3) {
+        const mugP = (ip - 0.3) / 0.7;
+        const mugC = iso(tx + 1.7, ty + 0.6, th);
+        ctx.beginPath();
+        ctx.arc(mugC.x, mugC.y, 4 * mugP, 0, Math.PI * 2);
+        ctx.strokeStyle = goldAlpha(0.35 * mugP);
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+        line(tx + 1.7, ty + 0.6, th, tx + 1.7, ty + 0.6, th + 0.2 * mugP, 1, 0.5, 0.25);
+      }
     }
   }
 
-  function drawChair(cx, cy, flip) {
-    const p = S.chair;
-    if (p <= 0) return;
-    const cw = 0.7, cd = 0.7, ch = 0.7, bh = 1.5;
-    // Seat
-    lineSeq([
-      [cx, cy, ch, cx + cw, cy, ch],
-      [cx + cw, cy, ch, cx + cw, cy + cd, ch],
-      [cx + cw, cy + cd, ch, cx, cy + cd, ch],
-      [cx, cy + cd, ch, cx, cy, ch]
-    ], Math.min(p * 1.4, 1), 0.5);
-    // Legs
-    if (p > 0.2) {
-      const lp = (p - 0.2) / 0.8;
-      line(cx, cy, ch, cx, cy, 0, lp, 0.35);
-      line(cx + cw, cy, ch, cx + cw, cy, 0, lp, 0.35);
-      line(cx + cw, cy + cd, ch, cx + cw, cy + cd, 0, lp, 0.35);
-      line(cx, cy + cd, ch, cx, cy + cd, 0, lp, 0.35);
+  function drawChair() {
+    if (S.chair <= 0) return;
+
+    function oneChair(cx, cy, backSide) {
+      const cw = 0.55, cd = 0.55, sh = 0.6, bkH = 1.15;
+      lineSeq([
+        [cx, cy, sh, cx + cw, cy, sh],
+        [cx + cw, cy, sh, cx + cw, cy + cd, sh],
+        [cx + cw, cy + cd, sh, cx, cy + cd, sh],
+        [cx, cy + cd, sh, cx, cy, sh],
+      ], S.chair, 0.9, 0.65);
+
+      const lp = Math.max(0, (S.chair - 0.3) / 0.5);
+      [[cx, cy], [cx + cw, cy], [cx + cw, cy + cd], [cx, cy + cd]].forEach(([lx, ly]) => {
+        line(lx, ly, sh, lx, ly, sh - sh * lp, 1, 0.6, 0.4);
+      });
+
+      const bp = Math.max(0, (S.chair - 0.6) / 0.4);
+      if (bp > 0) {
+        if (backSide === 'y0') {
+          line(cx, cy, sh, cx, cy, bkH * bp + sh * (1 - bp), 1, 0.9, 0.65);
+          line(cx + cw, cy, sh, cx + cw, cy, bkH * bp + sh * (1 - bp), 1, 0.9, 0.65);
+          if (bp > 0.7) line(cx, cy, bkH, cx + cw, cy, bkH, (bp - 0.7) / 0.3, 0.9, 0.65);
+        } else {
+          line(cx, cy + cd, sh, cx, cy + cd, bkH * bp + sh * (1 - bp), 1, 0.9, 0.65);
+          line(cx + cw, cy + cd, sh, cx + cw, cy + cd, bkH * bp + sh * (1 - bp), 1, 0.9, 0.65);
+          if (bp > 0.7) line(cx, cy + cd, bkH, cx + cw, cy + cd, bkH, (bp - 0.7) / 0.3, 0.9, 0.65);
+        }
+      }
     }
-    // Backrest
-    if (p > 0.5) {
-      const bp = (p - 0.5) / 0.5;
-      const bx = flip ? cx + cw : cx;
-      line(bx, cy, ch, bx, cy, bh, bp, 0.5);
-      line(bx, cy + cd, ch, bx, cy + cd, bh, bp, 0.5);
-      if (bp > 0.5) line(bx, cy, bh, bx, cy + cd, bh, (bp - 0.5) / 0.5, 0.45);
-    }
+
+    oneChair(3.1, 1.1, 'y0');
+    oneChair(3.1, 3.3, 'yD');
   }
 
   function drawShelf() {
-    const p = S.shelf;
-    if (p <= 0) return;
-    const sx = 5.8, sy = RD - 0.05, sw = 1, sd = 0.4, sh = 3, shelves = 5;
-    // Verticals
-    line(sx, sy, 0, sx, sy, sh * Math.min(p * 1.3, 1), Math.min(p * 1.3, 1), 0.5);
-    line(sx + sw, sy, 0, sx + sw, sy, sh * Math.min(p * 1.3, 1), Math.min(p * 1.3, 1), 0.5);
-    // Shelves
-    if (p > 0.2) {
-      const sp = (p - 0.2) / 0.8;
-      for (let i = 0; i <= shelves; i++) {
-        const sz = (sh / shelves) * i;
-        const ip = Math.min(Math.max(sp * (shelves + 1) - i, 0), 1);
-        if (ip > 0) {
-          line(sx, sy, sz, sx + sw, sy, sz, ip, 0.4);
-          line(sx, sy - sd, sz, sx + sw, sy - sd, sz, ip, 0.25);
-          line(sx, sy, sz, sx, sy - sd, sz, ip, 0.25);
-          line(sx + sw, sy, sz, sx + sw, sy - sd, sz, ip, 0.25);
-        }
-      }
+    if (S.shelf <= 0) return;
+    const sy1 = 0.5, sy2 = 1.8, topZ = 2.8;
+
+    line(0, sy1, 0, 0, sy1, topZ * S.shelf, 1, 1, 0.8);
+    line(0, sy2, 0, 0, sy2, topZ * S.shelf, 1, 1, 0.8);
+
+    const numS = 5;
+    for (let i = 0; i <= numS; i++) {
+      const sz = (topZ / numS) * i;
+      if (sz > topZ * S.shelf) break;
+      const sp = Math.max(0, (S.shelf - i * 0.1) / 0.5);
+      line(0, sy1, sz, 0, sy2, sz, Math.min(sp, 1), 0.7, 0.55);
+      line(0, sy1, sz, 0.35, sy1, sz, Math.min(sp, 1) * 0.5, 0.4, 0.25);
     }
-    // Books (small rectangles on shelves)
-    if (p > 0.6) {
-      const bp = (p - 0.6) / 0.4;
-      for (let i = 1; i <= 3; i++) {
-        const bz = (sh / shelves) * i;
-        const numBooks = 3 + Math.floor(Math.random() * 0.1); // deterministic
-        for (let j = 0; j < numBooks; j++) {
-          const bx = sx + 0.1 + j * 0.3;
-          const bh2 = 0.3 + (j % 2) * 0.15;
-          const segP = Math.min(bp * 3 - i * 0.3, 1);
-          if (segP > 0) {
-            line(bx, sy - 0.02, bz, bx, sy - 0.02, bz + bh2, segP, 0.25);
-            if (segP > 0.5) line(bx + 0.15, sy - 0.02, bz, bx + 0.15, sy - 0.02, bz + bh2, (segP - 0.5) * 2, 0.2);
-          }
+
+    if (S.shelf > 0.6) {
+      const bp = (S.shelf - 0.6) / 0.4;
+      const books = [
+        [sy1 + 0.1, 0.05, 0.45], [sy1 + 0.25, 0.05, 0.5], [sy1 + 0.4, 0.05, 0.38],
+        [sy1 + 0.55, 0.05, 0.42], [sy1 + 0.7, 0.05, 0.47], [sy1 + 0.9, 0.05, 0.35],
+        [sy1 + 0.15, topZ / numS + 0.05, 0.48], [sy1 + 0.35, topZ / numS + 0.05, 0.4],
+        [sy1 + 0.55, topZ / numS + 0.05, 0.44], [sy1 + 0.8, topZ / numS + 0.05, 0.38],
+        [sy1 + 0.1, topZ / numS * 2 + 0.05, 0.42], [sy1 + 0.3, topZ / numS * 2 + 0.05, 0.5],
+      ];
+      books.forEach((b, i) => {
+        const bookP = Math.max(0, Math.min(1, (bp - i * 0.04) * 2.5));
+        if (bookP > 0) {
+          line(0, b[0], b[1], 0, b[0], b[1] + b[2] * bookP, 1, 0.5, 0.3);
         }
-      }
+      });
     }
   }
 
   function drawLamp() {
-    const p = S.lamp;
-    if (p <= 0) return;
-    const lx = 0.8, ly = 1, lh = 2.5;
-    // Base ellipse
-    if (p > 0) {
-      const bp = iso(lx, ly, 0);
-      ctx.beginPath();
-      ctx.ellipse(bp.x, bp.y, 8 * Math.min(p * 2, 1), 4 * Math.min(p * 2, 1), -Math.PI / 6, 0, Math.PI * 2);
-      ctx.strokeStyle = colorAt(0.4, S.glow);
-      ctx.lineWidth = 1; ctx.stroke();
+    if (S.lamp <= 0) return;
+    const lx = 6, ly = 4.2;
+
+    const bp = Math.min(S.lamp * 2, 1);
+    const base = iso(lx, ly, 0);
+    ctx.beginPath();
+    ctx.ellipse(base.x, base.y, 7 * bp, 4 * bp, -Math.PI / 6, 0, Math.PI * 2);
+    ctx.strokeStyle = goldAlpha(0.5 * bp);
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+
+    if (S.lamp > 0.2) {
+      const pp = (S.lamp - 0.2) / 0.5;
+      line(lx, ly, 0, lx, ly, 2.8 * Math.min(pp, 1), 1, 1, 0.8);
     }
-    // Pole
-    if (p > 0.15) line(lx, ly, 0, lx, ly, lh * Math.min((p - 0.15) / 0.5, 1), Math.min((p - 0.15) / 0.5, 1), 0.5);
-    // Shade cone
-    if (p > 0.5) {
-      const sp = (p - 0.5) / 0.5;
-      const t = iso(lx, ly, lh);
-      const r = 18 * sp;
-      ctx.beginPath();
-      ctx.ellipse(t.x, t.y + 12, r, r * 0.4, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = colorAt(0.45 * sp, S.glow);
-      ctx.lineWidth = 1; ctx.stroke();
-      // Glow
-      if (sp > 0.5) {
-        const grad = ctx.createRadialGradient(t.x, t.y + 20, 0, t.x, t.y + 20, 60);
-        grad.addColorStop(0, colorAt(0.08 * sp, S.glow));
-        grad.addColorStop(1, 'transparent');
+
+    if (S.lamp > 0.65) {
+      const sp = (S.lamp - 0.65) / 0.35;
+      lineSeq([
+        [lx - 0.4, ly - 0.3, 3.2, lx, ly, 2.8],
+        [lx, ly, 2.8, lx + 0.4, ly + 0.3, 3.2],
+        [lx + 0.4, ly + 0.3, 3.2, lx + 0.4, ly - 0.2, 3.2],
+        [lx + 0.4, ly - 0.2, 3.2, lx - 0.4, ly - 0.3, 3.2],
+        [lx - 0.4, ly - 0.3, 3.2, lx - 0.4, ly + 0.2, 3.2],
+      ], sp, 0.9, 0.7);
+
+      if (sp > 0.8) {
+        const ga = (sp - 0.8) / 0.2;
+        const center = iso(lx, ly, 2.6);
+        const grad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, 40 * ga);
+        grad.addColorStop(0, goldAlpha(0.1 * ga));
+        grad.addColorStop(1, 'rgba(194,164,126,0)');
         ctx.fillStyle = grad;
-        ctx.fillRect(t.x - 60, t.y - 40, 120, 120);
+        ctx.fillRect(center.x - 50, center.y - 50, 100, 100);
       }
     }
   }
 
   function drawPlant() {
-    const p = S.plant;
-    if (p <= 0) return;
-    const px = 6.2, py = 0.6, ph = 0.5;
-    // Pot
+    if (S.plant <= 0) return;
+    const px = 6.2, py = 0.6;
+
     lineSeq([
-      [px - 0.25, py - 0.2, 0, px + 0.25, py - 0.2, 0],
-      [px + 0.25, py - 0.2, 0, px + 0.2, py + 0.2, ph],
-      [px - 0.2, py + 0.2, ph, px - 0.25, py - 0.2, 0]
-    ], Math.min(p * 2, 1), 0.4);
-    line(px + 0.2, py + 0.2, ph, px - 0.2, py + 0.2, ph, Math.min(p * 2, 1), 0.4);
-    // Stems + leaves
-    if (p > 0.4) {
-      const sp = (p - 0.4) / 0.6;
+      [px - 0.2, py - 0.15, 0, px - 0.25, py - 0.2, 0.4],
+      [px - 0.25, py - 0.2, 0.4, px + 0.25, py + 0.2, 0.4],
+      [px + 0.25, py + 0.2, 0.4, px + 0.2, py + 0.15, 0],
+      [px + 0.2, py + 0.15, 0, px - 0.2, py - 0.15, 0],
+    ], S.plant, 0.8, 0.6);
+
+    if (S.plant > 0.4) {
+      const sp = (S.plant - 0.4) / 0.6;
       const stems = [
-        { dx: 0, dy: 0, h: 1.2, curve: 0.3 },
-        { dx: 0.15, dy: -0.1, h: 0.9, curve: -0.2 },
-        { dx: -0.1, dy: 0.1, h: 1, curve: 0.15 },
-        { dx: 0.08, dy: 0.12, h: 0.7, curve: -0.25 }
+        { dx: -0.1, dy: -0.08, h: 0.9 },
+        { dx: 0.05, dy: 0.05, h: 1.1 },
+        { dx: -0.15, dy: 0.1, h: 0.8 },
+        { dx: 0.12, dy: -0.06, h: 1.0 },
       ];
-      stems.forEach((stem, i) => {
-        const ssp = Math.min(Math.max(sp * 4 - i * 0.5, 0), 1);
-        if (ssp > 0) {
-          line(px + stem.dx, py + stem.dy, ph, px + stem.dx + stem.curve * ssp, py + stem.dy, ph + stem.h * ssp, ssp, 0.35);
+      stems.forEach((s, i) => {
+        const stemP = Math.max(0, Math.min(1, (sp - i * 0.12) * 2));
+        if (stemP > 0) {
+          line(px, py, 0.4, px + s.dx, py + s.dy, 0.4 + s.h * stemP, 1, 0.6, 0.45);
+          if (stemP > 0.7) {
+            const lp = (stemP - 0.7) / 0.3;
+            const leafEnd = iso(px + s.dx * 3, py + s.dy * 2.5, 0.4 + s.h - 0.1);
+            const leafStart = iso(px + s.dx, py + s.dy, 0.4 + s.h * stemP);
+            ctx.beginPath();
+            ctx.moveTo(leafStart.x, leafStart.y);
+            ctx.quadraticCurveTo(
+              leafStart.x + (leafEnd.x - leafStart.x) * 0.5 + 5,
+              leafStart.y - 8,
+              leafEnd.x, leafEnd.y
+            );
+            ctx.strokeStyle = goldAlpha(0.35 * lp);
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
         }
       });
     }
   }
 
   function drawPicture() {
-    const p = S.picture;
-    if (p <= 0) return;
-    const fx = RW, fy1 = RD - 1.5, fy2 = RD - 3.5, fz1 = 1.8, fz2 = 3;
+    if (S.picture <= 0) return;
+    const px1 = 5.3, px2 = 6.5, pz1 = 2.0, pz2 = 2.9;
     lineSeq([
-      [fx, fy1, fz1, fx, fy2, fz1],
-      [fx, fy2, fz1, fx, fy2, fz2],
-      [fx, fy2, fz2, fx, fy1, fz2],
-      [fx, fy1, fz2, fx, fy1, fz1]
-    ], p, 0.4);
-    // Inner
-    if (p > 0.6) {
-      const ip = (p - 0.6) / 0.4;
-      const m = 0.2;
+      [px1, 0, pz1, px2, 0, pz1],
+      [px2, 0, pz1, px2, 0, pz2],
+      [px2, 0, pz2, px1, 0, pz2],
+      [px1, 0, pz2, px1, 0, pz1],
+    ], S.picture, 0.9, 0.6);
+
+    if (S.picture > 0.6) {
+      const ip = (S.picture - 0.6) / 0.4;
+      const m = 0.1;
       lineSeq([
-        [fx, fy1 - m, fz1 + m, fx, fy2 + m, fz1 + m],
-        [fx, fy2 + m, fz1 + m, fx, fy2 + m, fz2 - m],
-        [fx, fy2 + m, fz2 - m, fx, fy1 - m, fz2 - m],
-        [fx, fy1 - m, fz2 - m, fx, fy1 - m, fz1 + m]
-      ], ip, 0.25);
+        [px1 + m, 0, pz1 + m, px2 - m, 0, pz1 + m],
+        [px2 - m, 0, pz1 + m, px2 - m, 0, pz2 - m],
+        [px2 - m, 0, pz2 - m, px1 + m, 0, pz2 - m],
+        [px1 + m, 0, pz2 - m, px1 + m, 0, pz1 + m],
+      ], ip, 0.5, 0.3);
+    }
+  }
+
+  function drawRug() {
+    if (S.rug <= 0) return;
+    const rx = 2, ry = 1.5, rw = 3.2, rd = 2.2;
+    lineSeq([
+      [rx, ry, 0.01, rx + rw, ry, 0.01],
+      [rx + rw, ry, 0.01, rx + rw, ry + rd, 0.01],
+      [rx + rw, ry + rd, 0.01, rx, ry + rd, 0.01],
+      [rx, ry + rd, 0.01, rx, ry, 0.01],
+    ], S.rug, 0.7, 0.35);
+
+    if (S.rug > 0.5) {
+      const ip = (S.rug - 0.5) * 2;
+      const m = 0.25;
+      lineSeq([
+        [rx + m, ry + m, 0.01, rx + rw - m, ry + m, 0.01],
+        [rx + rw - m, ry + m, 0.01, rx + rw - m, ry + rd - m, 0.01],
+        [rx + rw - m, ry + rd - m, 0.01, rx + m, ry + rd - m, 0.01],
+        [rx + m, ry + rd - m, 0.01, rx + m, ry + m, 0.01],
+      ], ip, 0.5, 0.2);
     }
   }
 
   function drawDimensions() {
-    const p = S.dims;
-    if (p <= 0) return;
-    ctx.setLineDash([4, 4]);
-    // Width dimension
-    const d1a = iso(0, -0.8, 0), d1b = iso(RW, -0.8, 0);
-    const dp1 = Math.min(p * 2, 1);
-    ctx.beginPath();
-    ctx.moveTo(d1a.x, d1a.y);
-    ctx.lineTo(d1a.x + (d1b.x - d1a.x) * dp1, d1a.y + (d1b.y - d1a.y) * dp1);
-    ctx.strokeStyle = colorAt(0.3, S.glow);
-    ctx.lineWidth = 0.8; ctx.stroke();
+    if (S.dims <= 0) return;
 
-    // Height dimension
-    const d2a = iso(-0.8, 0, 0), d2b = iso(-0.8, 0, RH);
-    const dp2 = Math.min(Math.max(p * 2 - 0.3, 0) / 0.7, 1);
-    ctx.beginPath();
-    ctx.moveTo(d2a.x, d2a.y);
-    ctx.lineTo(d2a.x + (d2b.x - d2a.x) * dp2, d2a.y + (d2b.y - d2a.y) * dp2);
-    ctx.strokeStyle = colorAt(0.3, S.glow);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    const corners = [[0,0,0],[RW,0,0],[0,RD,0],[RW,RD,0],[0,0,RH],[RW,0,RH]];
+    corners.forEach((c, i) => {
+      cross(c[0], c[1], c[2], Math.max(0, (S.dims - i * 0.05) / 0.5));
+    });
 
-    // Labels
-    if (p > 0.6) {
-      const la = (p - 0.6) / 0.4;
-      ctx.font = `${10}px Montserrat, sans-serif`;
-      ctx.fillStyle = colorAt(0.3 * la, S.glow);
+    const dp = Math.max(0, (S.dims - 0.2) / 0.8);
+    dashed(0, RD + 0.6, 0, RW, RD + 0.6, 0, dp, 0.3);
+    line(0, RD + 0.4, 0, 0, RD + 0.8, 0, dp, 0.5, 0.25);
+    line(RW, RD + 0.4, 0, RW, RD + 0.8, 0, dp, 0.5, 0.25);
+
+    dashed(RW + 0.6, 0, 0, RW + 0.6, 0, RH, dp, 0.3);
+    line(RW + 0.4, 0, 0, RW + 0.8, 0, 0, dp, 0.5, 0.25);
+    line(RW + 0.4, 0, RH, RW + 0.8, 0, RH, dp, 0.5, 0.25);
+
+    if (S.dims > 0.5) {
+      const tp = (S.dims - 0.5) / 0.5;
+      ctx.font = `300 ${Math.max(9, Math.min(11, W * 0.008))}px Montserrat, sans-serif`;
       ctx.textAlign = 'center';
-      const lp1 = iso(RW / 2, -1.3, 0);
-      ctx.fillText('7 000 mm', lp1.x, lp1.y);
-      const lp2 = iso(-1.5, 0, RH / 2);
-      ctx.save();
-      ctx.translate(lp2.x, lp2.y);
-      ctx.rotate(-Math.PI / 2);
-      ctx.fillText('3 800 mm', 0, 0);
-      ctx.restore();
-    }
-
-    // Corner crosses
-    if (p > 0.3) {
-      const cp = (p - 0.3) / 0.7;
-      const corners = [[0, 0, 0], [RW, 0, 0], [RW, RD, 0], [0, RD, 0]];
-      corners.forEach(c => {
-        const pt = iso(c[0], c[1], c[2]);
-        const s = 5 * cp;
-        ctx.beginPath();
-        ctx.moveTo(pt.x - s, pt.y); ctx.lineTo(pt.x + s, pt.y);
-        ctx.moveTo(pt.x, pt.y - s); ctx.lineTo(pt.x, pt.y + s);
-        ctx.strokeStyle = colorAt(0.35 * cp, S.glow);
-        ctx.lineWidth = 1; ctx.stroke();
-      });
+      ctx.fillStyle = goldAlpha(0.35 * tp);
+      const wMid = iso(RW / 2, RD + 1, 0);
+      ctx.fillText('7 000 mm', wMid.x, wMid.y);
+      const hMid = iso(RW + 1, 0, RH / 2);
+      ctx.fillText('3 800 mm', hMid.x, hMid.y);
     }
   }
 
   function drawGlow() {
     if (S.glow <= 0) return;
-    // Window light beam
-    const wCenter = iso(RW, 2.75, 2.1);
-    const floorTarget = iso(RW - 3, 2.75, 0);
-    const grad = ctx.createRadialGradient(wCenter.x, wCenter.y, 0, wCenter.x, wCenter.y, 200 * S.glow);
-    grad.addColorStop(0, `rgba(194,164,126,${0.08 * S.glow})`);
-    grad.addColorStop(1, 'transparent');
+    const wCenter = iso(3, 0, 2.1);
+    const r = Math.min(W, H) * 0.5;
+    const grad = ctx.createRadialGradient(wCenter.x, wCenter.y, 0, wCenter.x, wCenter.y, r * S.glow);
+    grad.addColorStop(0, goldAlpha(0.08 * S.glow));
+    grad.addColorStop(0.4, goldAlpha(0.03 * S.glow));
+    grad.addColorStop(1, 'rgba(194,164,126,0)');
     ctx.fillStyle = grad;
-    ctx.fillRect(wCenter.x - 200, wCenter.y - 200, 400, 400);
+    ctx.fillRect(0, 0, W, H);
 
-    // Light cone on floor
     if (S.glow > 0.3) {
-      const cp = (S.glow - 0.3) / 0.7;
-      const p1 = iso(RW, 1.5, 1.2);
-      const p2 = iso(RW, 4, 1.2);
-      const p3 = iso(RW - 3, 4.5, 0);
-      const p4 = iso(RW - 3, 1, 0);
+      const bp = (S.glow - 0.3) / 0.7;
+      ctx.globalAlpha = bp * 0.06 * (1 - S.fadeOut);
+      const w1 = iso(1.5, 0, 2.5);
+      const w2 = iso(4.5, 0, 2.5);
+      const f1 = iso(1, 3, 0);
+      const f2 = iso(5, 3.5, 0);
       ctx.beginPath();
-      ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
-      ctx.lineTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y);
+      ctx.moveTo(w1.x, w1.y);
+      ctx.lineTo(w2.x, w2.y);
+      ctx.lineTo(f2.x, f2.y);
+      ctx.lineTo(f1.x, f1.y);
       ctx.closePath();
-      ctx.fillStyle = `rgba(194,164,126,${0.025 * cp})`;
+      ctx.fillStyle = 'rgba(194,164,126,0.5)';
       ctx.fill();
+      ctx.globalAlpha = 1;
     }
   }
 
   function drawParticles() {
-    particles.forEach(p => {
-      p.z += p.speed;
-      p.wobble += 0.01;
-      if (p.z > RH + 1) { p.z = -0.5; p.x = (Math.random() - 0.5) * RW * 1.5; }
-      const wx = p.x + Math.sin(p.wobble) * 0.3;
-      const pt = iso(wx, p.y, p.z);
-      if (pt.x < 0 || pt.x > W || pt.y < 0 || pt.y > H) return;
+    if (S.particles <= 0) return;
+    dustParticles.forEach(p => {
+      p.y -= p.speed;
+      p.x += p.drift;
+      if (p.y < -0.02) { p.y = 1.02; p.x = Math.random(); }
+      if (p.x < 0 || p.x > 1) p.x = Math.random();
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = colorAt(S.particleAlpha * 0.3, S.glow);
+      ctx.arc(p.x * W, p.y * H, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = goldAlpha(p.alpha * S.particles);
       ctx.fill();
     });
   }
 
-  // ═ Main render loop
+  // ═══ RENDER LOOP ═══
   let running = true;
+
   function render() {
     if (!running) return;
     ctx.clearRect(0, 0, W, H);
 
-    // Apply dissolve
-    if (S.dissolve > 0) {
-      ctx.globalAlpha = 1 - S.dissolve;
-    }
-
+    drawGlow();
     drawGrid();
+    drawRug();
     drawFloor();
     drawWalls();
+    drawCeiling();
     drawWindow();
     drawDoor();
-    drawRug();
-    drawGlow();
-    drawTable();
-    drawChair(2.0, 1.6, false);
-    drawChair(4.0, 3.2, true);
     drawShelf();
+    drawPicture();
+    drawTable();
+    drawChair();
     drawLamp();
     drawPlant();
-    drawPicture();
     drawDimensions();
     drawParticles();
 
-    ctx.globalAlpha = 1;
     requestAnimationFrame(render);
   }
 
-  // ═ GSAP Timeline
+  // ═══ GSAP TIMELINE ═══
+  render();
+
   const tl = gsap.timeline({
     onUpdate: function () {
-      const p = Math.round(tl.progress() * 100);
-      if (barFill) barFill.style.width = p + '%';
-      if (pctEl) pctEl.textContent = p + '%';
+      const pct = Math.round(this.progress() * 100);
+      if (barFill) barFill.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
     },
-    onComplete: function () {
-      // Fade out loader → reveal main site
+    onComplete: () => {
       gsap.to(loaderEl, {
         opacity: 0, duration: 0.6, ease: 'power2.inOut',
-        onComplete: function () {
+        onComplete: () => {
           loaderEl.style.display = 'none';
           running = false;
           initAll();
@@ -612,33 +663,42 @@ function initLoader() {
     }
   });
 
-  // Phase 1 — Grid + Floor
-  tl.to(S, { grid: 1, duration: 0.8, ease: 'power2.out' }, 0)
-    .to(S, { floor: 1, duration: 1, ease: 'power2.out' }, 0.2);
-  // Phase 2 — Walls
-  tl.to(S, { walls: 1, duration: 1.2, ease: 'power2.out' }, 0.7);
-  // Phase 3 — Window + Door
-  tl.to(S, { window: 1, duration: 0.8, ease: 'power2.out' }, 1.6)
-    .to(S, { door: 1, duration: 0.6, ease: 'power2.out' }, 1.8);
-  // Phase 4 — Furniture
-  tl.to(S, { rug: 1, duration: 0.6, ease: 'power2.out' }, 2.2)
-    .to(S, { table: 1, duration: 0.8, ease: 'power2.out' }, 2.4)
-    .to(S, { chair: 1, duration: 0.7, ease: 'power2.out' }, 2.7)
-    .to(S, { shelf: 1, duration: 0.8, ease: 'power2.out' }, 2.9)
-    .to(S, { lamp: 1, duration: 0.7, ease: 'power2.out' }, 3.1)
-    .to(S, { plant: 1, duration: 0.5, ease: 'power2.out' }, 3.3)
-    .to(S, { picture: 1, duration: 0.5, ease: 'power2.out' }, 3.4);
-  // Phase 5 — Dimensions
-  tl.to(S, { dims: 1, duration: 0.7, ease: 'power2.out' }, 3.3);
-  // Phase 6 — Golden light
-  tl.to(S, { glow: 1, duration: 1, ease: 'power2.inOut' }, 3.6)
-    .to(S, { particleAlpha: 0.8, duration: 0.8 }, 3.6);
-  // Phase 7 — Dissolve
-  tl.to(S, { dissolve: 1, duration: 0.8, ease: 'power2.in' }, 4.6);
+  // Phase 1: Blueprint Grid + Floor (0s - 1s)
+  tl.to(S, { grid: 1, duration: 0.8, ease: 'power2.out' }, 0);
+  tl.to(S, { particles: 0.5, duration: 1, ease: 'power1.in' }, 0);
+  tl.to(S, { floor: 1, duration: 0.8, ease: 'power2.inOut' }, 0.25);
 
-  // Start
-  render();
-  window.addEventListener('resize', resize);
+  // Phase 2: Walls rise (0.7s - 2s)
+  tl.to(S, { wallR: 1, duration: 1, ease: 'power2.out' }, 0.7);
+  tl.to(S, { wallL: 1, duration: 1, ease: 'power2.out' }, 0.85);
+  tl.to(S, { ceiling: 1, duration: 0.6, ease: 'power2.out' }, 1.6);
+
+  // Phase 3: Window + Door (1.6s - 2.5s)
+  tl.to(S, { window: 1, duration: 0.8, ease: 'power2.inOut' }, 1.6);
+  tl.to(S, { door: 1, duration: 0.6, ease: 'power2.out' }, 2.0);
+
+  // Phase 4: Furniture (2.2s - 3.6s)
+  tl.to(S, { rug: 1, duration: 0.6, ease: 'power2.out' }, 2.2);
+  tl.to(S, { table: 1, duration: 0.9, ease: 'power2.out' }, 2.3);
+  tl.to(S, { chair: 1, duration: 0.8, ease: 'power2.out' }, 2.6);
+  tl.to(S, { shelf: 1, duration: 0.9, ease: 'power2.out' }, 2.4);
+  tl.to(S, { lamp: 1, duration: 0.8, ease: 'power2.out' }, 2.8);
+  tl.to(S, { plant: 1, duration: 0.7, ease: 'power2.out' }, 3.0);
+  tl.to(S, { picture: 1, duration: 0.5, ease: 'power2.out' }, 3.1);
+
+  // Phase 5: Dimensions (3.3s - 4s)
+  tl.to(S, { dims: 1, duration: 0.7, ease: 'power2.out' }, 3.3);
+
+  // Phase 6: Golden light wash (3.6s - 4.5s)
+  tl.to(S, { glow: 1, duration: 1.2, ease: 'power2.inOut' }, 3.6);
+  tl.to(S, { particles: 0.8, duration: 0.8, ease: 'power1.in' }, 3.8);
+
+  // Phase 7: Dissolve wireframe (4.4s - 5.2s) — no logo/tagline, just fade and go
+  tl.to(S, { fadeOut: 1, duration: 0.8, ease: 'power2.in' }, 4.4);
+  tl.to(S, { particles: 0, duration: 0.5 }, 4.6);
+
+  // Brief hold then complete
+  tl.to({}, { duration: 0.3 }, 5.1);
 }
 
 // ═══ SCROLL PROGRESS ═══
