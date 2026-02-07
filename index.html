@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAYA Architecture Studio</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-current-theme="dark">
+
+  <!-- Noise overlay -->
+  <div class="noise-overlay"></div>
+
+  <!-- Scroll progress bar -->
+  <div class="scroll-progress"></div>
+
+  <!-- Page Loader -->
+  <div class="page-loader">
+    <img src="logo.png" alt="LAYA" class="loader-logo">
+    <div class="loader-line"><div class="loader-line-fill"></div></div>
+    <div class="loader-text">Architecture & Interior Design</div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header">
+    <div class="header-nav header-nav-left">
+      <ul>
+        <li><a href="#section-0">Domů</a></li>
+        <li><a href="#section-4">Kontakt</a></li>
+      </ul>
+    </div>
+    <div class="header-logo">
+      <a href="#section-0" class="logo-link" aria-label="LAYA Home">
+        <img src="logo.png" alt="LAYA Architecture Studio Logo">
+      </a>
+    </div>
+    <div class="header-nav header-nav-right">
+      <ul>
+        <li><a href="#section-1">O Mně</a></li>
+        <li><a href="#section-services-offered">Nabídka</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+      </ul>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="mobile-menu-toggle" aria-label="Toggle Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay">
+    <nav class="mobile-nav">
+      <ul>
+        <li><a href="#section-0">Domů</a></li>
+        <li><a href="#section-1">O Mně</a></li>
+        <li><a href="#section-services-offered">Nabídka</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="#section-4">Kontakt</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- ══════════ HERO ══════════ -->
+  <section class="hero-section" id="section-0" data-theme="dark">
+    <div class="hero-image-stack">
+      <img src="interior_1.jpg" alt="Modern Interior Design" class="hero-image hero-image-active" id="hero-img-1">
+      <img src="interior_2.jpg" alt="Classic Interior Design" class="hero-image" id="hero-img-2">
+      <img src="interior_3.jpg" alt="Innovative Interior Design" class="hero-image" id="hero-img-3">
+      <img src="interior_4.jpg" alt="Contemporary Interior Design" class="hero-image" id="hero-img-4">
+      <img src="interior_5.jpg" alt="Elegant Interior Design" class="hero-image" id="hero-img-5">
+      <img src="interior_6.jpg" alt="Luxurious Interior Design" class="hero-image" id="hero-img-6">
+      <img src="interior_7.jpg" alt="Minimalist Interior Design" class="hero-image" id="hero-img-7">
+      <img src="interior_8.jpg" alt="Traditional Interior Design" class="hero-image" id="hero-img-8">
+      <img src="interior_9.jpg" alt="Sophisticated Interior Design" class="hero-image" id="hero-img-9">
+      <img src="interior_10.jpg" alt="Premium Interior Design" class="hero-image" id="hero-img-10">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-vignette"></div>
+
+    <div class="hero-content">
+      <div class="hero-tagline">Architektura & Interiérový Design</div>
+      <a href="portfolio.html" class="hero-portfolio-btn">
+        <span>Zobrazit Portfolio</span>
+        <span class="btn-arrow">→</span>
+      </a>
+    </div>
+
+    <div class="hero-counter">
+      <span class="current">01</span> / <span class="total">10</span>
+    </div>
+
+    <div class="scroll-indicator">
+      <span>Prozkoumat</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ══════════ ABOUT ══════════ -->
+  <section class="about-section section-padding" id="section-1" data-theme="dark">
+    <div class="about-content-wrapper">
+      <div class="about-text-container">
+        <div class="section-label section-label-light">O Mně</div>
+        <h2 class="section-heading section-heading-light heading-lg">Každý domov vypráví svůj <em class="accent-text">jedinečný příběh</em></h2>
+        <div class="about-text">
+          <p>Pod značkou LAYA HOME pomáhám vytvářet domovy, které nejsou jen esteticky působivé a funkční, ale především odrážejí osobnost a životní styl svých majitelů. Ať už jde o rekonstrukci starého venkovského stavení, návrh rodinného domu nebo proměnu interiéru, vždy hledám harmonii mezi tradicí, estetikou a současnými potřebami.</p>
+          <p>Mým cílem je, aby prostor sloužil Vám – ne Vy jemu. Domov by měl být přirozeným pokračováním Vašeho života, respektovat Vaše zvyky, potřeby i sny. Ke každému projektu proto přistupuji individuálně, s maximální pečlivostí a respektem k místu i jeho historii. Spolupráce se mnou Vám přinese nové úhly pohledu a promyšlená řešení, která Vám budou dělat radost po mnoho let.</p>
+          <p>Každý projekt je pro mne jedinečný, a proto kladu důraz na osobní přístup, vzájemnou důvěru a pochopení Vašich potřeb. Pokud toužíte vytvořit místo, které bude ladit s Vaším životním stylem i vkusem, velmi ráda Vám pomohu navrhnout domov, ve kterém se najdete. Vytvoříme společně skutečný domov, ve kterém se budete cítit dobře každý den.</p>
+        </div>
+      </div>
+      <div class="about-portrait-wrapper">
+        <img src="portrait.jpg" alt="Architect Portrait" class="about-portrait">
+        <div class="about-portrait-frame"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ SERVICES OFFERED ══════════ -->
+  <section class="services-offered-section section-padding" id="section-services-offered" data-theme="light">
+    <div class="services-offered-container">
+      <div class="section-label section-label-dark" style="justify-content:center;">Nabídka</div>
+      <h2 class="section-heading section-heading-dark heading-md" style="text-align:center;max-width:700px;margin:0 auto 64px;">Co Vám mohu <em class="accent-text">nabídnout</em></h2>
+      <div class="services-timeline">
+        <div class="timeline-line"></div>
+        <div class="services-grid">
+
+          <div class="service-item">
+            <div class="service-number-circle"><span>01</span></div>
+            <h3>Design interiéru</h3>
+            <p>Pomohu Vám vytvořit prostor, který bude nejen krásný, ale i praktický a přizpůsobený Vašemu životnímu stylu. Ať už plánujete nový domov, nebo proměnu stávajícího bytu či kanceláře, provedu Vás celým procesem od prvotních představ až po finální realizaci.</p>
+          </div>
+
+          <div class="service-item">
+            <div class="service-number-circle"><span>02</span></div>
+            <h3>Architektonické návrhy a rekonstrukce</h3>
+            <p>Navrhuji rodinné domy, rekreační objekty i jiné menší stavby s ohledem na okolní prostředí a Vaše potřeby. Můj přístup spojuje moderní design s respektem k místu a přírodě, aby výsledný projekt ladil s prostředím i Vaším životem. Pokud máte objekt, který chcete zrekonstruovat nebo přeměnit, pomohu Vám najít optimální řešení, které zachová jeho charakter a zároveň splní Vaše současné požadavky na komfort a funkčnost.</p>
+          </div>
+
+          <div class="service-item">
+            <div class="service-number-circle"><span>03</span></div>
+            <h3>Konzultace na míru</h3>
+            <p>Není vždy nutné hned začít s celým projektem. Pokud řešíte koupi nemovitosti, plánujete rekonstrukci, nebo si jen nejste jistí svými představami, ráda Vám poskytnu odborný názor a doporučení – osobně, telefonicky nebo přes videohovor.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ SERVICES PROCESS ══════════ -->
+  <section class="services-section section-padding" id="section-services" data-theme="light">
+    <div class="services-container">
+      <div class="section-label section-label-dark" style="justify-content:center;">Proces</div>
+      <h2 class="section-heading section-heading-dark heading-md" style="text-align:center;margin-bottom:64px;">Jak probíhá <em class="accent-text">spolupráce</em></h2>
+
+      <div class="service-offered-item">
+        <div class="service-offered-number">1.</div>
+        <div class="service-offered-content">
+          <h3>Setkání a zaměření</h3>
+          <p>Na začátku si domluvíme schůzku, nejlépe přímo v objektu nebo místě, kterému se budeme věnovat. Daný prostor si zaměřím, nebo pokud máte k prostoru projekt od architekta, zaměření nebude potřeba a vše si z projektu vyčtu. Osobní návštěva mi pomáhá lépe porozumět charakteru místa – jak prostoru samotnému, tak jeho vztahům s okolím. Každý interiér, který navrhuji, totiž odráží osobnost těch, kdo v něm budou žít. Abych Vám mohla vytvořit prostor opravdu na míru, chci Vás trochu poznat – Váš styl, oblíbené barvy a materiály, ale i to, jak trávíte volný čas a jak vypadá Váš běžný den. Pokud jste z větší dálky a moje práce Vás zaujala, nemusíte se bát – celou spolupráci zvládneme i online.</p>
+        </div>
+      </div>
+
+      <hr class="service-divider">
+
+      <div class="service-offered-item">
+        <div class="service-offered-number">2.</div>
+        <div class="service-offered-content">
+          <h3>Návrh a vizualizace</h3>
+          <p>Nejprve se zaměřím na funkční uspořádání jednotlivých zón a promyšlení celkového půdorysného řešení. Současně začínám pracovat s prvotní představou o použitých materiálech, barvách a atmosféře prostoru. Návrh s Vámi průběžně konzultuji – společně ladíme rozvržení místností, logiku pohybu v prostoru i základní materiálovou paletu. Jakmile máme jasnější směr, připravím vizualizace, které Vám pomohou lépe si prostor představit a snáz se rozhodnout, co Vám vyhovuje. Součástí výstupu jsou také pohledy na jednotlivé stěny a návrh atypického nábytku, abyste získali co nejkomplexnější přehled o podobě interiéru. Návrh společně dolaďujeme, dokud nebudete s výsledkem opravdu spokojeni. Dobře promyšlený interiér pak bude dlouhodobě funkční, přirozeně se přizpůsobí Vašemu životnímu rytmu a bude Vám dělat radost každý den.</p>
+        </div>
+      </div>
+
+      <hr class="service-divider">
+
+      <div class="service-offered-item">
+        <div class="service-offered-number">3.</div>
+        <div class="service-offered-content">
+          <h3>Dokumentace</h3>
+          <p>Ve chvíli, kdy budete s návrhem spokojeni, připravím kompletní dokumentaci potřebnou k jeho realizaci. Získáte ode mě přehledné a detailní podklady, které usnadní komunikaci s řemeslníky a plynulé zahájení prací. Součástí výstupu je: půdorysné řešení interiéru, výkresy pohledů na jednotlivé stěny, výkresy atypického nábytku na míru, návrh rozmístění osvětlení a elektroinstalace, spárořezy obkladů, realistické vizualizace a seznam všech vybraných zařizovacích prvků, materiálů a barev. Díky této dokumentaci bude mít každý, kdo se na realizaci podílí, jasnou představu o výsledku – a vy jistotu, že se návrh převede do reality přesně podle Vašich představ.</p>
+        </div>
+      </div>
+
+      <hr class="service-divider">
+
+      <div class="service-offered-item">
+        <div class="service-offered-number">4.</div>
+        <div class="service-offered-content">
+          <h3>Realizace</h3>
+          <p>Dobře promyšlený návrh je základem interiéru, který Vám bude sloužit spolehlivě a s radostí po mnoho let. Ve chvíli, kdy máte v ruce hotový návrh a podrobnou dokumentaci, přichází čas pustit se do samotné realizace. Ráda Vám doporučím prověřené dodavatele, výrobce nábytku i šikovné řemeslníky. Během realizace se domluvíme na pravidelných návštěvách stavby, abych mohla osobně ohlídat správné provedení a kvalitu práce, aby byl výsledek odpovídající návrhu. Pokud budete chtít, mohu Vám pomoci také s koordinací jednotlivých profesí nebo s objednávkami vybavení. Cílem je, aby vše proběhlo hladce a výsledek odpovídal tomu, co jsme společně navrhli – a vy se mohli co nejdříve zabydlet ve svém novém domově.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ CONTACT ══════════ -->
+  <section class="contact-section section-padding" id="section-4" data-theme="light">
+    <div class="contact-form-container">
+      <div class="section-label section-label-dark" style="justify-content:center;">Kontakt</div>
+      <h2 class="contact-title">Kontaktujte mne</h2>
+      <form class="contact-form" action="#" method="POST">
+        <div class="form-group">
+          <label for="first-name">Jméno</label>
+          <input type="text" id="first-name" name="first-name" required>
+        </div>
+        <div class="form-group">
+          <label for="last-name">Příjmení</label>
+          <input type="text" id="last-name" name="last-name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Telefon</label>
+          <input type="text" id="phone" name="phone">
+        </div>
+        <div class="form-group">
+          <label for="message">Zpráva</label>
+          <textarea id="message" name="message" required></textarea>
+        </div>
+        <div class="form-submit-wrapper">
+          <button type="submit">Odeslat</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="social-icons">
+        <a href="#" aria-label="Instagram" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" aria-label="Pinterest" title="Pinterest"><i class="fab fa-pinterest"></i></a>
+      </div>
+      <p class="copyright">&copy; <span id="copyright-year"></span> LAYA Architecture Studio. Všechna práva vyhrazena.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
