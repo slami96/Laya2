@@ -3,396 +3,286 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio — LAYA Architecture Studio</title>
-
-  <!-- Fonts -->
+  <title>Portfolio — LAYA HOME</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-  <!-- Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="portfolio.css">
 </head>
 <body>
 
-  <!-- Noise -->
   <div class="noise-overlay"></div>
 
   <!-- Header -->
-  <header class="site-header" id="site-header">
-    <div class="header-nav header-nav-left">
+  <header class="site-header header-scrolled" id="site-header">
+    <nav class="header-nav header-nav-left">
       <ul>
-        <li><a href="index.html">Domů</a></li>
-        <li><a href="index.html#section-4">Kontakt</a></li>
+        <li><a href="index.html#about">O nás</a></li>
+        <li><a href="index.html#services">Služby</a></li>
       </ul>
-    </div>
+    </nav>
     <div class="header-logo">
-      <a href="index.html" class="logo-link" aria-label="LAYA Home">
-        <img src="logo.png" alt="LAYA Architecture Studio Logo">
-      </a>
+      <a href="index.html" class="logo-link"><img src="logo.png" alt="LAYA HOME"></a>
     </div>
-    <div class="header-nav header-nav-right">
+    <nav class="header-nav header-nav-right">
       <ul>
-        <li><a href="index.html#section-1">O Mně</a></li>
-        <li><a href="index.html#section-services-offered">Nabídka</a></li>
         <li><a href="portfolio.html" class="active">Portfolio</a></li>
+        <li><a href="index.html#contact">Kontakt</a></li>
       </ul>
-    </div>
-
-    <div class="mobile-menu-toggle" aria-label="Toggle Menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+    </nav>
+    <div class="mobile-menu-toggle"><span></span><span></span><span></span></div>
   </header>
 
-  <!-- Mobile Menu -->
   <div class="mobile-menu-overlay">
     <nav class="mobile-nav">
       <ul>
-        <li><a href="index.html">Domů</a></li>
-        <li><a href="index.html#section-1">O Mně</a></li>
-        <li><a href="index.html#section-services-offered">Nabídka</a></li>
+        <li><a href="index.html#about">O nás</a></li>
+        <li><a href="index.html#services">Služby</a></li>
         <li><a href="portfolio.html">Portfolio</a></li>
-        <li><a href="index.html#section-4">Kontakt</a></li>
+        <li><a href="index.html#contact">Kontakt</a></li>
       </ul>
     </nav>
   </div>
 
+  <!-- Portfolio Hero -->
+  <section class="portfolio-hero" data-theme="dark">
+    <h1 class="portfolio-hero-title">Naše <span class="accent">projekty</span></h1>
+    <p class="portfolio-hero-sub">21 realizovaných projektů</p>
+  </section>
+
   <!-- Portfolio Grid -->
-  <section class="portfolio-grid-section">
-    <div class="portfolio-container">
-      <div class="portfolio-section-header">
-        <div class="section-label">Vybrané projekty</div>
-        <h1>Naše <em>portfolio</em></h1>
-      </div>
+  <section class="portfolio-section" data-theme="dark">
+    <div class="portfolio-grid">
 
-      <div class="portfolio-grid">
-        <div class="portfolio-item" data-category="residential" data-project-image="project_1.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_1.jpg" alt="Hasičská Zbrojnice">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Hasičská Zbrojnice</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_2.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_2.jpg" alt="Rekonstrukce RD">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Rekonstrukce RD</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_3.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_3.jpg" alt="Útulna Krkonoše">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Útulna Krkonoše</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_4.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_4.jpg" alt="Chalupa v Jestřebích horách">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Chalupa v Jestřebích horách</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_5.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_5.jpg" alt="Rekonstrukce statku">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Rekonstrukce statku</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="commercial" data-project-image="project_6.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_6.jpg" alt="Přeměna atria">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Přeměna atria</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_7.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_7.jpg" alt="Obývací pokoj I">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Obývací pokoj I</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_8.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_8.jpg" alt="Obývací pokoj II">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Obývací pokoj II</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_9.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_9.jpg" alt="Obývací pokoj III">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Obývací pokoj III</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_10.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_10.jpg" alt="Kuchyň a jídelna">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Kuchyň a jídelna</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_11.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_11.jpg" alt="Rekonstrukce bytu">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Rekonstrukce bytu</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_12.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_12.jpg" alt="Přístavba k chalupě">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Přístavba k chalupě</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_13.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_13.jpg" alt="Vila na pobřeží">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Vila na pobřeží</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_14.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_14.jpg" alt="Broumovský statek">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Broumovský statek</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_15.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_15.jpg" alt="Broumovský statek">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Broumovský statek</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="commercial" data-project-image="project_16.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_16.jpg" alt="Vinný sklípek">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Vinný sklípek</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_17.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_17.jpg" alt="Odpočinková zóna">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Odpočinková zóna</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_18.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_18.jpg" alt="Ložnice I">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Ložnice I</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_19.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_19.jpg" alt="Koupelna">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Koupelna</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_20.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_20.jpg" alt="Obývací pokoj IV">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Obývací pokoj IV</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="portfolio-item" data-category="residential" data-project-image="project_21.jpg">
-          <div class="portfolio-item-inner">
-            <div class="portfolio-image">
-              <img src="nahled_21.jpg" alt="Ložnice II">
-              <div class="portfolio-overlay">
-                <div class="overlay-content">
-                  <h3>Ložnice II</h3>
-                  <a href="#" class="view-project">Zobrazit projekt</a>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div class="portfolio-card" data-project-image="project_1.jpg" data-title="Hasičská Zbrojnice">
+        <img src="nahled_1.jpg" alt="Hasičská Zbrojnice" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Architektura</div>
+          <div class="portfolio-card-title">Hasičská Zbrojnice</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
         </div>
       </div>
+
+      <div class="portfolio-card" data-project-image="project_2.jpg" data-title="Rekonstrukce RD Brno">
+        <img src="nahled_2.jpg" alt="Rekonstrukce RD Brno" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Rekonstrukce</div>
+          <div class="portfolio-card-title">Rekonstrukce RD Brno</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_3.jpg" data-title="Interiér Bytu">
+        <img src="nahled_3.jpg" alt="Interiér Bytu" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Interiér Bytu</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_4.jpg" data-title="Kancelářské Prostory">
+        <img src="nahled_4.jpg" alt="Kancelářské Prostory" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Komerční design</div>
+          <div class="portfolio-card-title">Kancelářské Prostory</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_5.jpg" data-title="Moderní Vila">
+        <img src="nahled_5.jpg" alt="Moderní Vila" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Architektura</div>
+          <div class="portfolio-card-title">Moderní Vila</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_6.jpg" data-title="Kuchyňský Design">
+        <img src="nahled_6.jpg" alt="Kuchyňský Design" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Kuchyňský Design</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_7.jpg" data-title="Podkrovní Byt">
+        <img src="nahled_7.jpg" alt="Podkrovní Byt" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Podkrovní Byt</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_8.jpg" data-title="Rodinný Dům">
+        <img src="nahled_8.jpg" alt="Rodinný Dům" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Architektura</div>
+          <div class="portfolio-card-title">Rodinný Dům</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_9.jpg" data-title="Minimalistická Kuchyně">
+        <img src="nahled_9.jpg" alt="Minimalistická Kuchyně" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Design kuchyně</div>
+          <div class="portfolio-card-title">Minimalistická Kuchyně</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_10.jpg" data-title="Obývací Pokoj">
+        <img src="nahled_10.jpg" alt="Obývací Pokoj" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Obývací Pokoj</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_11.jpg" data-title="Koupelna">
+        <img src="nahled_11.jpg" alt="Koupelna" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Koupelna</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_12.jpg" data-title="Terasa a Zahrada">
+        <img src="nahled_12.jpg" alt="Terasa a Zahrada" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Exteriér</div>
+          <div class="portfolio-card-title">Terasa a Zahrada</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_13.jpg" data-title="Ložnice">
+        <img src="nahled_13.jpg" alt="Ložnice" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Ložnice</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_14.jpg" data-title="Rekonstrukce Bytu">
+        <img src="nahled_14.jpg" alt="Rekonstrukce Bytu" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Rekonstrukce</div>
+          <div class="portfolio-card-title">Rekonstrukce Bytu</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_15.jpg" data-title="Pracovna">
+        <img src="nahled_15.jpg" alt="Pracovna" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Pracovna</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_16.jpg" data-title="Vstupní Hala">
+        <img src="nahled_16.jpg" alt="Vstupní Hala" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Vstupní Hala</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_17.jpg" data-title="Dětský Pokoj">
+        <img src="nahled_17.jpg" alt="Dětský Pokoj" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Dětský Pokoj</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_18.jpg" data-title="Jídelna">
+        <img src="nahled_18.jpg" alt="Jídelna" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Jídelna</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_19.jpg" data-title="Venkovní Posezení">
+        <img src="nahled_19.jpg" alt="Venkovní Posezení" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Exteriér</div>
+          <div class="portfolio-card-title">Venkovní Posezení</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_20.jpg" data-title="Wellness">
+        <img src="nahled_20.jpg" alt="Wellness" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Interiérový design</div>
+          <div class="portfolio-card-title">Wellness</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
+      <div class="portfolio-card" data-project-image="project_21.jpg" data-title="Rekonstrukce Domu">
+        <img src="nahled_21.jpg" alt="Rekonstrukce Domu" loading="lazy">
+        <div class="portfolio-card-overlay">
+          <div class="portfolio-card-category">Rekonstrukce</div>
+          <div class="portfolio-card-title">Rekonstrukce Domu</div>
+          <button class="portfolio-card-btn">Zobrazit <span class="btn-arrow">→</span></button>
+        </div>
+      </div>
+
     </div>
   </section>
 
   <!-- Modal -->
-  <div class="project-modal" id="projectModal">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <button class="modal-close" aria-label="Close"><span></span><span></span></button>
-      <button class="modal-nav modal-nav-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
-      <button class="modal-nav modal-nav-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
-      <div class="modal-image-container">
-        <img src="" alt="" class="modal-image">
-      </div>
+  <div class="portfolio-modal">
+    <button class="modal-close">✕</button>
+    <button class="modal-nav modal-prev">←</button>
+    <button class="modal-nav modal-next">→</button>
+    <div class="modal-image-container">
+      <img src="" alt="" class="modal-image">
+    </div>
+    <div class="modal-info">
+      <div class="modal-title"></div>
+      <div class="modal-counter"><span class="current">01</span> / <span class="total">21</span></div>
     </div>
   </div>
 
+  <!-- Back link -->
+  <div class="portfolio-back" data-theme="dark">
+    <a href="index.html"><span class="back-arrow">←</span> Zpět na hlavní stránku</a>
+  </div>
+
   <!-- Footer -->
-  <footer class="portfolio-footer">
+  <footer class="site-footer" data-theme="dark">
     <div class="footer-content">
       <div class="social-icons">
         <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a>
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+        <a href="#" aria-label="Houzz"><i class="fab fa-houzz"></i></a>
       </div>
-      <p class="copyright">&copy; <span id="copyright-year"></span> LAYA Architecture Studio. Všechna práva vyhrazena.</p>
+      <p class="copyright">&copy; <span id="copyright-year"></span> LAYA HOME. Všechna práva vyhrazena.</p>
     </div>
   </footer>
 
-  <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
   <script src="portfolio.js"></script>
 </body>
 </html>
