@@ -56,7 +56,7 @@ function initProcessCanvas() {
 
   function recalcIso() {
     if (!W || !H) return;
-    isoScale = Math.min(W, H) * 0.084;
+    isoScale = Math.min(W, H) * 0.071;
     isoOffX = W * 0.5 - (RW / 2 - RD / 2) * COS30 * isoScale;
     isoOffY = H * 0.5 - ((RW / 2 + RD / 2) * SIN30 - RH / 2) * isoScale;
   }
