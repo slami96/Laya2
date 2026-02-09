@@ -23,17 +23,6 @@
   <!-- Scroll Progress -->
   <div class="scroll-progress"></div>
 
-  <!-- Page Loader — Canvas Wireframe Room -->
-  <div class="page-loader" id="page-loader">
-    <canvas class="loader-canvas" id="loader-canvas"></canvas>
-    <div class="loader-progress">
-      <div class="loader-bar-track">
-        <div class="loader-bar-fill" id="loader-bar-fill"></div>
-      </div>
-      <div class="loader-pct" id="loader-pct">0%</div>
-    </div>
-  </div>
-
   <!-- Header -->
   <header class="site-header" id="site-header">
     <nav class="header-nav header-nav-left">
@@ -119,7 +108,7 @@
   <!-- ═══════════════════════════════
        ABOUT — CLIP-PATH REVEAL
        ═══════════════════════════════ -->
-  <section class="about-section" id="about" data-theme="dark">
+  <section class="about-section" id="about" data-theme="light">
     <div class="about-grid">
       <div class="about-text-col">
         <div class="section-label">O nás</div>
@@ -207,6 +196,11 @@
        PROCESS — STACKING CARDS
        ═══════════════════════════════ -->
   <section class="process-section" data-theme="light">
+    <!-- Wireframe Room Canvas — scroll-driven background -->
+    <div class="process-canvas-wrap" id="process-canvas-wrap">
+      <canvas class="process-canvas" id="process-canvas"></canvas>
+    </div>
+
     <div class="process-header">
       <div class="section-label" style="justify-content:center;">Jak pracujeme</div>
       <h2 class="process-heading">
