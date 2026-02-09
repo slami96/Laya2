@@ -657,23 +657,17 @@ function initHorizontalScroll() {
 // ═══ STACKING CARDS — PROCESS ═══
 function initStackingCards() {
   const cards = gsap.utils.toArray('.stack-card');
-  const header = document.querySelector('.process-header');
   if (cards.length === 0) return;
 
-  // Hide cards + header initially — they wait for wireframe animation
+  // Hide cards initially — they wait for wireframe animation
   gsap.set(cards, { opacity: 0, y: 60 });
-  if (header) gsap.set(header, { opacity: 0, y: 30 });
 
   // Listen for custom event dispatched when room animation completes
   document.addEventListener('roomAnimationDone', function() {
-    const tl = gsap.timeline();
-    if (header) {
-      tl.to(header, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0);
-    }
-    tl.to(cards, {
+    gsap.to(cards, {
       opacity: 1, y: 0, duration: 0.8,
       stagger: 0.15, ease: 'power2.out'
-    }, 0.2);
+    });
   });
 }
 
