@@ -55,9 +55,10 @@ function initProcessCanvas() {
   let isoScale, isoOffX, isoOffY;
 
   function recalcIso() {
-    isoScale = Math.min(W, H) * 0.07;
-    isoOffX = W * 0.5;
-    isoOffY = H * 0.54;
+    isoScale = Math.min(W, H) * 0.084; // 20% bigger than original 0.07
+    // Center the room's visual midpoint on canvas
+    isoOffX = W * 0.5 - (RW / 2 - RD / 2) * COS30 * isoScale;
+    isoOffY = H * 0.5 - ((RW / 2 + RD / 2) * SIN30 - RH / 2) * isoScale;
   }
 
   function iso(x, y, z) {
@@ -82,9 +83,9 @@ function initProcessCanvas() {
     dims: 0, glow: 0, particles: 0, fadeOut: 0,
   };
 
-  // ─── Colors ───
-  function goldAlpha(a) {
-    return `rgba(194,164,126,${a * (1 - S.fadeOut)})`;
+  // ─── Colors — black lines on transparent background ───
+  function inkAlpha(a) {
+    return `rgba(35,30,25,${a * (1 - S.fadeOut)})`;
   }
 
   // ─── Drawing pen glow at tip ───
@@ -92,11 +93,11 @@ function initProcessCanvas() {
     if (progress <= 0 || progress >= 1) return;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = goldAlpha(0.7);
+    ctx.fillStyle = inkAlpha(0.7);
     ctx.fill();
     ctx.beginPath();
     ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-    ctx.fillStyle = goldAlpha(0.15);
+    ctx.fillStyle = inkAlpha(0.15);
     ctx.fill();
   }
 
@@ -111,7 +112,7 @@ function initProcessCanvas() {
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(ex, ey);
-    ctx.strokeStyle = goldAlpha(alpha != null ? alpha : 0.8);
+    ctx.strokeStyle = inkAlpha(alpha != null ? alpha : 0.8);
     ctx.lineWidth = lw || 1.2;
     ctx.stroke();
     drawPenTip({ x: ex, y: ey }, progress);
@@ -142,7 +143,7 @@ function initProcessCanvas() {
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(ex, ey);
-    ctx.strokeStyle = goldAlpha(alpha || 0.25);
+    ctx.strokeStyle = inkAlpha(alpha || 0.25);
     ctx.lineWidth = 0.6;
     ctx.stroke();
     ctx.restore();
@@ -158,7 +159,7 @@ function initProcessCanvas() {
     ctx.lineTo(c.x + s, c.y);
     ctx.moveTo(c.x, c.y - s);
     ctx.lineTo(c.x, c.y + s);
-    ctx.strokeStyle = goldAlpha(0.35 * Math.min(progress, 1));
+    ctx.strokeStyle = inkAlpha(0.35 * Math.min(progress, 1));
     ctx.lineWidth = 0.6;
     ctx.stroke();
   }
@@ -211,13 +212,13 @@ function initProcessCanvas() {
       const h = wh * S.wallL;
       line(0,0,0,0,0,h,1,1.5,0.9); line(0,RD,0,0,RD,h,1,1.5,0.9);
       if (S.wallL >= 1) line(0,0,wh,0,RD,wh,1,1.5,0.9);
-      if (S.wallL > 0.6) { const fa=(S.wallL-0.6)/0.4*0.035; fillQuad(0,0,0,0,RD,0,0,RD,h,0,0,h,goldAlpha(fa)); }
+      if (S.wallL > 0.6) { const fa=(S.wallL-0.6)/0.4*0.035; fillQuad(0,0,0,0,RD,0,0,RD,h,0,0,h,inkAlpha(fa)); }
     }
     if (S.wallR > 0) {
       const h = wh * S.wallR;
       line(0,0,0,0,0,h,1,1.3,0.85); line(RW,0,0,RW,0,h,1,1.3,0.85);
       if (S.wallR >= 1) line(0,0,wh,RW,0,wh,1,1.3,0.85);
-      if (S.wallR > 0.6) { const fa=(S.wallR-0.6)/0.4*0.03; fillQuad(0,0,0,RW,0,0,RW,0,h,0,0,h,goldAlpha(fa)); }
+      if (S.wallR > 0.6) { const fa=(S.wallR-0.6)/0.4*0.03; fillQuad(0,0,0,RW,0,0,RW,0,h,0,0,h,inkAlpha(fa)); }
     }
   }
 
@@ -234,14 +235,14 @@ function initProcessCanvas() {
     line(mx,0,wz1,mx,0,wz2,mp,0.8,0.6); line(wx1,0,mz,wx2,0,mz,mp,0.8,0.6);
     const sp=Math.max(0,(S.window-0.7)/0.3);
     line(wx1-0.15,0.1,wz1,wx2+0.15,0.1,wz1,sp,0.9,0.7);
-    if (S.window > 0.8) { const ga=(S.window-0.8)/0.2*0.06; fillQuad(wx1,0,wz1,wx2,0,wz1,wx2,0,wz2,wx1,0,wz2,goldAlpha(ga)); }
+    if (S.window > 0.8) { const ga=(S.window-0.8)/0.2*0.06; fillQuad(wx1,0,wz1,wx2,0,wz1,wx2,0,wz2,wx1,0,wz2,inkAlpha(ga)); }
   }
 
   function drawDoor() {
     if (S.door <= 0) return;
     const dy1=3.5,dy2=4.5,dz=2.8;
     lineSeq([[0,dy1,0,0,dy1,dz],[0,dy1,dz,0,dy2,dz],[0,dy2,dz,0,dy2,0]], S.door, 1.2, 0.8);
-    if (S.door > 0.7) { const hp=(S.door-0.7)/0.3; const h=iso(0,dy1+0.15,1.3); ctx.beginPath(); ctx.arc(h.x,h.y,2.5*hp,0,Math.PI*2); ctx.strokeStyle=goldAlpha(0.6*hp); ctx.lineWidth=0.8; ctx.stroke(); }
+    if (S.door > 0.7) { const hp=(S.door-0.7)/0.3; const h=iso(0,dy1+0.15,1.3); ctx.beginPath(); ctx.arc(h.x,h.y,2.5*hp,0,Math.PI*2); ctx.strokeStyle=inkAlpha(0.6*hp); ctx.lineWidth=0.8; ctx.stroke(); }
   }
 
   function drawTable() {
@@ -254,7 +255,7 @@ function initProcessCanvas() {
       const ip=(S.table-0.7)/0.3;
       lineSeq([[tx+0.4,ty+0.3,th,tx+1.3,ty+0.3,th],[tx+1.3,ty+0.3,th,tx+1.3,ty+1,th],[tx+1.3,ty+1,th,tx+0.4,ty+1,th],[tx+0.4,ty+1,th,tx+0.4,ty+0.3,th]], ip, 0.6, 0.35);
       if (ip>0.5) { const scrP=(ip-0.5)*2; line(tx+0.4,ty+0.3,th,tx+0.4,ty+0.25,th+0.6*scrP,1,0.6,0.35); line(tx+1.3,ty+0.3,th,tx+1.3,ty+0.25,th+0.6*scrP,1,0.6,0.35); if(scrP>0.8) line(tx+0.4,ty+0.25,th+0.6,tx+1.3,ty+0.25,th+0.6,1,0.6,0.35); }
-      if (ip>0.3) { const mugP=(ip-0.3)/0.7; const mugC=iso(tx+1.7,ty+0.6,th); ctx.beginPath(); ctx.arc(mugC.x,mugC.y,4*mugP,0,Math.PI*2); ctx.strokeStyle=goldAlpha(0.35*mugP); ctx.lineWidth=0.7; ctx.stroke(); line(tx+1.7,ty+0.6,th,tx+1.7,ty+0.6,th+0.2*mugP,1,0.5,0.25); }
+      if (ip>0.3) { const mugP=(ip-0.3)/0.7; const mugC=iso(tx+1.7,ty+0.6,th); ctx.beginPath(); ctx.arc(mugC.x,mugC.y,4*mugP,0,Math.PI*2); ctx.strokeStyle=inkAlpha(0.35*mugP); ctx.lineWidth=0.7; ctx.stroke(); line(tx+1.7,ty+0.6,th,tx+1.7,ty+0.6,th+0.2*mugP,1,0.5,0.25); }
     }
   }
 
@@ -290,12 +291,12 @@ function initProcessCanvas() {
   function drawLamp() {
     if (S.lamp <= 0) return;
     const lx=6,ly=4.2;
-    const bp=Math.min(S.lamp*2,1); const base=iso(lx,ly,0); ctx.beginPath(); ctx.ellipse(base.x,base.y,7*bp,4*bp,-Math.PI/6,0,Math.PI*2); ctx.strokeStyle=goldAlpha(0.5*bp); ctx.lineWidth=0.7; ctx.stroke();
+    const bp=Math.min(S.lamp*2,1); const base=iso(lx,ly,0); ctx.beginPath(); ctx.ellipse(base.x,base.y,7*bp,4*bp,-Math.PI/6,0,Math.PI*2); ctx.strokeStyle=inkAlpha(0.5*bp); ctx.lineWidth=0.7; ctx.stroke();
     if (S.lamp>0.2) { const pp=(S.lamp-0.2)/0.5; line(lx,ly,0,lx,ly,2.8*Math.min(pp,1),1,1,0.8); }
     if (S.lamp>0.65) {
       const sp=(S.lamp-0.65)/0.35;
       lineSeq([[lx-0.4,ly-0.3,3.2,lx,ly,2.8],[lx,ly,2.8,lx+0.4,ly+0.3,3.2],[lx+0.4,ly+0.3,3.2,lx+0.4,ly-0.2,3.2],[lx+0.4,ly-0.2,3.2,lx-0.4,ly-0.3,3.2],[lx-0.4,ly-0.3,3.2,lx-0.4,ly+0.2,3.2]], sp, 0.9, 0.7);
-      if (sp>0.8) { const ga=(sp-0.8)/0.2; const center=iso(lx,ly,2.6); const grad=ctx.createRadialGradient(center.x,center.y,0,center.x,center.y,40*ga); grad.addColorStop(0,goldAlpha(0.1*ga)); grad.addColorStop(1,'rgba(194,164,126,0)'); ctx.fillStyle=grad; ctx.fillRect(center.x-50,center.y-50,100,100); }
+      if (sp>0.8) { const ga=(sp-0.8)/0.2; const center=iso(lx,ly,2.6); const grad=ctx.createRadialGradient(center.x,center.y,0,center.x,center.y,40*ga); grad.addColorStop(0,inkAlpha(0.1*ga)); grad.addColorStop(1,'rgba(35,30,25,0)'); ctx.fillStyle=grad; ctx.fillRect(center.x-50,center.y-50,100,100); }
     }
   }
 
@@ -309,7 +310,7 @@ function initProcessCanvas() {
         const stemP=Math.max(0,Math.min(1,(sp-i*0.12)*2));
         if (stemP>0) {
           line(px,py,0.4,px+s.dx,py+s.dy,0.4+s.h*stemP,1,0.6,0.45);
-          if (stemP>0.7) { const lp2=(stemP-0.7)/0.3; const leafEnd=iso(px+s.dx*3,py+s.dy*2.5,0.4+s.h-0.1); const leafStart=iso(px+s.dx,py+s.dy,0.4+s.h*stemP); ctx.beginPath(); ctx.moveTo(leafStart.x,leafStart.y); ctx.quadraticCurveTo(leafStart.x+(leafEnd.x-leafStart.x)*0.5+5,leafStart.y-8,leafEnd.x,leafEnd.y); ctx.strokeStyle=goldAlpha(0.35*lp2); ctx.lineWidth=0.6; ctx.stroke(); }
+          if (stemP>0.7) { const lp2=(stemP-0.7)/0.3; const leafEnd=iso(px+s.dx*3,py+s.dy*2.5,0.4+s.h-0.1); const leafStart=iso(px+s.dx,py+s.dy,0.4+s.h*stemP); ctx.beginPath(); ctx.moveTo(leafStart.x,leafStart.y); ctx.quadraticCurveTo(leafStart.x+(leafEnd.x-leafStart.x)*0.5+5,leafStart.y-8,leafEnd.x,leafEnd.y); ctx.strokeStyle=inkAlpha(0.35*lp2); ctx.lineWidth=0.6; ctx.stroke(); }
         }
       });
     }
@@ -335,16 +336,16 @@ function initProcessCanvas() {
     const dp=Math.max(0,(S.dims-0.2)/0.8);
     dashed(0,RD+0.6,0,RW,RD+0.6,0,dp,0.3); line(0,RD+0.4,0,0,RD+0.8,0,dp,0.5,0.25); line(RW,RD+0.4,0,RW,RD+0.8,0,dp,0.5,0.25);
     dashed(RW+0.6,0,0,RW+0.6,0,RH,dp,0.3); line(RW+0.4,0,0,RW+0.8,0,0,dp,0.5,0.25); line(RW+0.4,0,RH,RW+0.8,0,RH,dp,0.5,0.25);
-    if (S.dims>0.5) { const tp=(S.dims-0.5)/0.5; ctx.font=`300 ${Math.max(9,Math.min(11,W*0.008))}px Montserrat, sans-serif`; ctx.textAlign='center'; ctx.fillStyle=goldAlpha(0.35*tp); const wMid=iso(RW/2,RD+1,0); ctx.fillText('7 000 mm',wMid.x,wMid.y); const hMid=iso(RW+1,0,RH/2); ctx.fillText('3 800 mm',hMid.x,hMid.y); }
+    if (S.dims>0.5) { const tp=(S.dims-0.5)/0.5; ctx.font=`300 ${Math.max(9,Math.min(11,W*0.008))}px Montserrat, sans-serif`; ctx.textAlign='center'; ctx.fillStyle=inkAlpha(0.35*tp); const wMid=iso(RW/2,RD+1,0); ctx.fillText('7 000 mm',wMid.x,wMid.y); const hMid=iso(RW+1,0,RH/2); ctx.fillText('3 800 mm',hMid.x,hMid.y); }
   }
 
   function drawGlow() {
     if (S.glow <= 0) return;
     const wCenter=iso(3,0,2.1); const r=Math.min(W,H)*0.5;
     const grad=ctx.createRadialGradient(wCenter.x,wCenter.y,0,wCenter.x,wCenter.y,r*S.glow);
-    grad.addColorStop(0,goldAlpha(0.08*S.glow)); grad.addColorStop(0.4,goldAlpha(0.03*S.glow)); grad.addColorStop(1,'rgba(194,164,126,0)');
+    grad.addColorStop(0,inkAlpha(0.08*S.glow)); grad.addColorStop(0.4,inkAlpha(0.03*S.glow)); grad.addColorStop(1,'rgba(35,30,25,0)');
     ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
-    if (S.glow>0.3) { const bp2=(S.glow-0.3)/0.7; ctx.globalAlpha=bp2*0.06*(1-S.fadeOut); const w1=iso(1.5,0,2.5),w2=iso(4.5,0,2.5),f1=iso(1,3,0),f2=iso(5,3.5,0); ctx.beginPath(); ctx.moveTo(w1.x,w1.y); ctx.lineTo(w2.x,w2.y); ctx.lineTo(f2.x,f2.y); ctx.lineTo(f1.x,f1.y); ctx.closePath(); ctx.fillStyle='rgba(194,164,126,0.5)'; ctx.fill(); ctx.globalAlpha=1; }
+    if (S.glow>0.3) { const bp2=(S.glow-0.3)/0.7; ctx.globalAlpha=bp2*0.06*(1-S.fadeOut); const w1=iso(1.5,0,2.5),w2=iso(4.5,0,2.5),f1=iso(1,3,0),f2=iso(5,3.5,0); ctx.beginPath(); ctx.moveTo(w1.x,w1.y); ctx.lineTo(w2.x,w2.y); ctx.lineTo(f2.x,f2.y); ctx.lineTo(f1.x,f1.y); ctx.closePath(); ctx.fillStyle='rgba(35,30,25,0.15)'; ctx.fill(); ctx.globalAlpha=1; }
   }
 
   function drawParticles() {
@@ -356,7 +357,7 @@ function initProcessCanvas() {
       const dx = ((driftX % 1) + 1) % 1;
       ctx.beginPath();
       ctx.arc(dx * W, scrollY * H, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = goldAlpha(p.alpha * S.particles);
+      ctx.fillStyle = inkAlpha(p.alpha * S.particles);
       ctx.fill();
     });
   }
