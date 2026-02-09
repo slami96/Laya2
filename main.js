@@ -24,43 +24,39 @@ function initLenis() {
 
 
 
+
 // ═══════════════════════════════════════
-//  PROCESS SECTION — SCROLL-DRIVEN
-//  ISOMETRIC WIREFRAME ROOM CANVAS
-//  (Original laya-loader animation, scrubbed by scroll)
+//  PROCESS — WIREFRAME ROOM CANVAS
+//  Time-based animation, triggered on scroll
 // ═══════════════════════════════════════
 function initProcessCanvas() {
-  const wrap = document.getElementById('process-canvas-wrap');
+  const section = document.querySelector('.process-section');
   const canvas = document.getElementById('process-canvas');
-  if (!wrap || !canvas) return;
+  if (!section || !canvas) { console.warn('initProcessCanvas: elements not found'); return; }
 
   const ctx = canvas.getContext('2d');
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  if (!ctx) return;
 
-  let W, H;
-  let needsRender = true;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let W, H, running = false, played = false;
 
   function resize() {
-    const rect = wrap.getBoundingClientRect();
-    W = rect.width;
-    H = rect.height;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
+    W = section.offsetWidth;
+    H = section.offsetHeight;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     recalcIso();
-    needsRender = true;
   }
 
-  // ─── Isometric math ───
   const COS30 = Math.cos(Math.PI / 6);
   const SIN30 = 0.5;
   let isoScale, isoOffX, isoOffY;
+  const RW = 7, RD = 5.5, RH = 3.8;
 
   function recalcIso() {
-    isoScale = Math.min(W, H) * 0.084; // 20% bigger than original 0.07
-    // Center the room's visual midpoint on canvas
+    if (!W || !H) return;
+    isoScale = Math.min(W, H) * 0.084;
     isoOffX = W * 0.5 - (RW / 2 - RD / 2) * COS30 * isoScale;
     isoOffY = H * 0.5 - ((RW / 2 + RD / 2) * SIN30 - RH / 2) * isoScale;
   }
@@ -72,366 +68,233 @@ function initProcessCanvas() {
     };
   }
 
-  resize();
-  window.addEventListener('resize', resize);
-
-  // ─── Room dimensions (iso units) ───
-  const RW = 7, RD = 5.5, RH = 3.8;
-
-  // ─── Animation state ───
   const S = {
-    grid: 0, floor: 0,
-    wallL: 0, wallR: 0, wallB: 0, ceiling: 0,
-    window: 0, door: 0,
-    table: 0, chair: 0, shelf: 0, lamp: 0, plant: 0, picture: 0, rug: 0,
+    grid: 0, floor: 0, wallL: 0, wallR: 0, ceiling: 0,
+    window: 0, door: 0, table: 0, chair: 0, shelf: 0,
+    lamp: 0, plant: 0, picture: 0, rug: 0,
     dims: 0, glow: 0, particles: 0, fadeOut: 0,
   };
 
-  // ─── Colors — black lines on transparent background ───
-  function inkAlpha(a) {
-    return `rgba(35,30,25,${a * (1 - S.fadeOut)})`;
+  function ink(a) { return 'rgba(35,30,25,' + (a * (1 - S.fadeOut)) + ')'; }
+
+  function penTip(p, prog) {
+    if (prog <= 0 || prog >= 1) return;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = ink(0.6); ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = ink(0.12); ctx.fill();
   }
 
-  // ─── Drawing pen glow at tip ───
-  function drawPenTip(p, progress) {
-    if (progress <= 0 || progress >= 1) return;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = inkAlpha(0.7);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-    ctx.fillStyle = inkAlpha(0.15);
-    ctx.fill();
+  function ln(ax, ay, az, bx, by, bz, prog, lw, alpha) {
+    if (prog <= 0) return;
+    var p = Math.min(prog, 1);
+    var a = iso(ax, ay, az), b = iso(bx, by, bz);
+    var ex = a.x + (b.x - a.x) * p, ey = a.y + (b.y - a.y) * p;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(ex, ey);
+    ctx.strokeStyle = ink(alpha != null ? alpha : 0.8);
+    ctx.lineWidth = lw || 1.2; ctx.stroke();
+    penTip({ x: ex, y: ey }, prog);
   }
 
-  // ─── Line with progress ───
-  function line(ax, ay, az, bx, by, bz, progress, lw, alpha) {
-    if (progress <= 0) return;
-    const p = Math.min(progress, 1);
-    const a = iso(ax, ay, az);
-    const b = iso(bx, by, bz);
-    const ex = a.x + (b.x - a.x) * p;
-    const ey = a.y + (b.y - a.y) * p;
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(ex, ey);
-    ctx.strokeStyle = inkAlpha(alpha != null ? alpha : 0.8);
-    ctx.lineWidth = lw || 1.2;
-    ctx.stroke();
-    drawPenTip({ x: ex, y: ey }, progress);
+  function lnSeq(arr, prog, lw, alpha) {
+    if (prog <= 0) return;
+    var n = arr.length;
+    for (var i = 0; i < n; i++) {
+      var seg = Math.max(0, Math.min(1, (prog - i / n) / (1 / n)));
+      var l = arr[i];
+      ln(l[0], l[1], l[2], l[3], l[4], l[5], seg, lw, alpha);
+    }
   }
 
-  // ─── Multi-line sequence ───
-  function lineSeq(lines, progress, lw, alpha) {
-    if (progress <= 0) return;
-    const n = lines.length;
-    lines.forEach((l, i) => {
-      const start = i / n;
-      const end = (i + 1) / n;
-      const seg = Math.max(0, Math.min(1, (progress - start) / (end - start)));
-      line(l[0], l[1], l[2], l[3], l[4], l[5], seg, lw, alpha);
-    });
-  }
-
-  // ─── Dashed line ───
-  function dashed(ax, ay, az, bx, by, bz, progress, alpha) {
-    if (progress <= 0) return;
-    const p = Math.min(progress, 1);
-    const a = iso(ax, ay, az);
-    const b = iso(bx, by, bz);
-    const ex = a.x + (b.x - a.x) * p;
-    const ey = a.y + (b.y - a.y) * p;
-    ctx.save();
-    ctx.setLineDash([3, 4]);
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(ex, ey);
-    ctx.strokeStyle = inkAlpha(alpha || 0.25);
-    ctx.lineWidth = 0.6;
-    ctx.stroke();
+  function dashed(ax, ay, az, bx, by, bz, prog, alpha) {
+    if (prog <= 0) return;
+    var p = Math.min(prog, 1);
+    var a = iso(ax, ay, az), b = iso(bx, by, bz);
+    ctx.save(); ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y);
+    ctx.lineTo(a.x + (b.x - a.x) * p, a.y + (b.y - a.y) * p);
+    ctx.strokeStyle = ink(alpha || 0.25); ctx.lineWidth = 0.6; ctx.stroke();
     ctx.restore();
   }
 
-  // ─── Cross mark ───
-  function cross(x, y, z, progress, size) {
-    if (progress <= 0) return;
-    const s = (size || 4) * Math.min(progress, 1);
-    const c = iso(x, y, z);
+  function cross(x, y, z, prog) {
+    if (prog <= 0) return;
+    var s = 4 * Math.min(prog, 1), c = iso(x, y, z);
     ctx.beginPath();
-    ctx.moveTo(c.x - s, c.y);
-    ctx.lineTo(c.x + s, c.y);
-    ctx.moveTo(c.x, c.y - s);
-    ctx.lineTo(c.x, c.y + s);
-    ctx.strokeStyle = inkAlpha(0.35 * Math.min(progress, 1));
-    ctx.lineWidth = 0.6;
-    ctx.stroke();
+    ctx.moveTo(c.x - s, c.y); ctx.lineTo(c.x + s, c.y);
+    ctx.moveTo(c.x, c.y - s); ctx.lineTo(c.x, c.y + s);
+    ctx.strokeStyle = ink(0.35 * Math.min(prog, 1));
+    ctx.lineWidth = 0.6; ctx.stroke();
   }
 
-  // ─── Fill a 3D quad ───
-  function fillQuad(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, color) {
-    const a = iso(ax, ay, az);
-    const b = iso(bx, by, bz);
-    const c = iso(cx, cy, cz);
-    const d = iso(dx, dy, dz);
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.lineTo(c.x, c.y);
-    ctx.lineTo(d.x, d.y);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
+  function fillQ(ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz, col) {
+    var a = iso(ax, ay, az), b = iso(bx, by, bz), c = iso(cx, cy, cz), d = iso(dx, dy, dz);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath();
+    ctx.fillStyle = col; ctx.fill();
   }
 
-  // ─── Particles (static positions, animated by scroll) ───
-  const dustParticles = [];
-  for (let i = 0; i < 50; i++) {
-    dustParticles.push({
-      x: Math.random(), y: Math.random(),
-      baseY: Math.random(),
-      size: Math.random() * 1.5 + 0.5,
-      drift: (Math.random() - 0.5) * 0.15,
-      alpha: Math.random() * 0.35 + 0.1,
-    });
-  }
+  var dust = [];
+  for (var i = 0; i < 50; i++) dust.push({ x: Math.random(), y: Math.random(), size: Math.random() * 1.5 + 0.5, speed: Math.random() * 0.0003 + 0.0001, drift: (Math.random() - 0.5) * 0.0002, alpha: Math.random() * 0.3 + 0.08 });
 
-  // ═══ DRAW EACH ELEMENT (identical to original) ═══
-
+  // === DRAW FUNCTIONS ===
   function drawGrid() {
     if (S.grid <= 0) return;
     ctx.globalAlpha = S.grid * 0.15 * (1 - S.fadeOut);
-    for (let i = 0; i <= RW; i++) line(i, 0, 0, i, RD, 0, 1, 0.3, 0.12);
-    for (let j = 0; j <= Math.floor(RD); j++) line(0, j, 0, RW, j, 0, 1, 0.3, 0.12);
+    for (var i = 0; i <= RW; i++) ln(i, 0, 0, i, RD, 0, 1, 0.3, 0.12);
+    for (var j = 0; j <= 5; j++) ln(0, j, 0, RW, j, 0, 1, 0.3, 0.12);
     ctx.globalAlpha = 1;
   }
-
-  function drawFloor() {
-    lineSeq([[0,0,0,RW,0,0],[RW,0,0,RW,RD,0],[RW,RD,0,0,RD,0],[0,RD,0,0,0,0]], S.floor, 1.5, 0.8);
-  }
-
+  function drawFloor() { lnSeq([[0,0,0,RW,0,0],[RW,0,0,RW,RD,0],[RW,RD,0,0,RD,0],[0,RD,0,0,0,0]], S.floor, 1.5, 0.8); }
   function drawWalls() {
-    const wh = RH;
-    if (S.wallL > 0) {
-      const h = wh * S.wallL;
-      line(0,0,0,0,0,h,1,1.5,0.9); line(0,RD,0,0,RD,h,1,1.5,0.9);
-      if (S.wallL >= 1) line(0,0,wh,0,RD,wh,1,1.5,0.9);
-      if (S.wallL > 0.6) { const fa=(S.wallL-0.6)/0.4*0.035; fillQuad(0,0,0,0,RD,0,0,RD,h,0,0,h,inkAlpha(fa)); }
-    }
-    if (S.wallR > 0) {
-      const h = wh * S.wallR;
-      line(0,0,0,0,0,h,1,1.3,0.85); line(RW,0,0,RW,0,h,1,1.3,0.85);
-      if (S.wallR >= 1) line(0,0,wh,RW,0,wh,1,1.3,0.85);
-      if (S.wallR > 0.6) { const fa=(S.wallR-0.6)/0.4*0.03; fillQuad(0,0,0,RW,0,0,RW,0,h,0,0,h,inkAlpha(fa)); }
-    }
+    if (S.wallL > 0) { var h = RH * S.wallL; ln(0,0,0,0,0,h,1,1.5,0.9); ln(0,RD,0,0,RD,h,1,1.5,0.9); if (S.wallL >= 1) ln(0,0,RH,0,RD,RH,1,1.5,0.9); if (S.wallL > 0.6) fillQ(0,0,0,0,RD,0,0,RD,h,0,0,h,ink((S.wallL-0.6)/0.4*0.025)); }
+    if (S.wallR > 0) { var h2 = RH * S.wallR; ln(0,0,0,0,0,h2,1,1.3,0.85); ln(RW,0,0,RW,0,h2,1,1.3,0.85); if (S.wallR >= 1) ln(0,0,RH,RW,0,RH,1,1.3,0.85); if (S.wallR > 0.6) fillQ(0,0,0,RW,0,0,RW,0,h2,0,0,h2,ink((S.wallR-0.6)/0.4*0.02)); }
   }
-
-  function drawCeiling() {
-    if (S.ceiling <= 0) return;
-    lineSeq([[0,0,RH,RW,0,RH],[RW,0,RH,RW,RD,RH],[RW,RD,RH,0,RD,RH],[0,RD,RH,0,0,RH]], S.ceiling, 0.7, 0.35);
-  }
-
+  function drawCeiling() { if (S.ceiling <= 0) return; lnSeq([[0,0,RH,RW,0,RH],[RW,0,RH,RW,RD,RH],[RW,RD,RH,0,RD,RH],[0,RD,RH,0,0,RH]], S.ceiling, 0.7, 0.35); }
   function drawWindow() {
     if (S.window <= 0) return;
-    const wx1=1.5,wx2=4.5,wz1=1.2,wz2=3.0;
-    lineSeq([[wx1,0,wz1,wx2,0,wz1],[wx2,0,wz1,wx2,0,wz2],[wx2,0,wz2,wx1,0,wz2],[wx1,0,wz2,wx1,0,wz1]], S.window, 1.4, 0.9);
-    const mp=Math.max(0,(S.window-0.5)/0.5), mx=(wx1+wx2)/2, mz=(wz1+wz2)/2;
-    line(mx,0,wz1,mx,0,wz2,mp,0.8,0.6); line(wx1,0,mz,wx2,0,mz,mp,0.8,0.6);
-    const sp=Math.max(0,(S.window-0.7)/0.3);
-    line(wx1-0.15,0.1,wz1,wx2+0.15,0.1,wz1,sp,0.9,0.7);
-    if (S.window > 0.8) { const ga=(S.window-0.8)/0.2*0.06; fillQuad(wx1,0,wz1,wx2,0,wz1,wx2,0,wz2,wx1,0,wz2,inkAlpha(ga)); }
+    lnSeq([[1.5,0,1.2,4.5,0,1.2],[4.5,0,1.2,4.5,0,3],[4.5,0,3,1.5,0,3],[1.5,0,3,1.5,0,1.2]], S.window, 1.4, 0.9);
+    var mp = Math.max(0,(S.window-0.5)/0.5); ln(3,0,1.2,3,0,3,mp,0.8,0.6); ln(1.5,0,2.1,4.5,0,2.1,mp,0.8,0.6);
+    var sp = Math.max(0,(S.window-0.7)/0.3); ln(1.35,0.1,1.2,4.65,0.1,1.2,sp,0.9,0.7);
+    if (S.window > 0.8) fillQ(1.5,0,1.2,4.5,0,1.2,4.5,0,3,1.5,0,3,ink((S.window-0.8)/0.2*0.04));
   }
-
   function drawDoor() {
     if (S.door <= 0) return;
-    const dy1=3.5,dy2=4.5,dz=2.8;
-    lineSeq([[0,dy1,0,0,dy1,dz],[0,dy1,dz,0,dy2,dz],[0,dy2,dz,0,dy2,0]], S.door, 1.2, 0.8);
-    if (S.door > 0.7) { const hp=(S.door-0.7)/0.3; const h=iso(0,dy1+0.15,1.3); ctx.beginPath(); ctx.arc(h.x,h.y,2.5*hp,0,Math.PI*2); ctx.strokeStyle=inkAlpha(0.6*hp); ctx.lineWidth=0.8; ctx.stroke(); }
+    lnSeq([[0,3.5,0,0,3.5,2.8],[0,3.5,2.8,0,4.5,2.8],[0,4.5,2.8,0,4.5,0]], S.door, 1.2, 0.8);
+    if (S.door > 0.7) { var hp=(S.door-0.7)/0.3; var h=iso(0,3.65,1.3); ctx.beginPath(); ctx.arc(h.x,h.y,2.5*hp,0,Math.PI*2); ctx.strokeStyle=ink(0.6*hp); ctx.lineWidth=0.8; ctx.stroke(); }
   }
-
   function drawTable() {
     if (S.table <= 0) return;
-    const tx=2.5,ty=2,tw=2.2,td=1.4,th=1.05;
-    lineSeq([[tx,ty,th,tx+tw,ty,th],[tx+tw,ty,th,tx+tw,ty+td,th],[tx+tw,ty+td,th,tx,ty+td,th],[tx,ty+td,th,tx,ty,th]], S.table, 1.3, 0.85);
-    const lp=Math.max(0,(S.table-0.4)/0.6), ins=0.12;
-    [[tx+ins,ty+ins],[tx+tw-ins,ty+ins],[tx+tw-ins,ty+td-ins],[tx+ins,ty+td-ins]].forEach(([lx,ly])=>{ line(lx,ly,th,lx,ly,th-th*lp,1,0.7,0.5); });
+    var tx=2.5,ty=2,tw=2.2,td=1.4,th=1.05;
+    lnSeq([[tx,ty,th,tx+tw,ty,th],[tx+tw,ty,th,tx+tw,ty+td,th],[tx+tw,ty+td,th,tx,ty+td,th],[tx,ty+td,th,tx,ty,th]], S.table, 1.3, 0.85);
+    var lp=Math.max(0,(S.table-0.4)/0.6);
+    [[tx+0.12,ty+0.12],[tx+tw-0.12,ty+0.12],[tx+tw-0.12,ty+td-0.12],[tx+0.12,ty+td-0.12]].forEach(function(c){ln(c[0],c[1],th,c[0],c[1],th-th*lp,1,0.7,0.5);});
     if (S.table > 0.7) {
-      const ip=(S.table-0.7)/0.3;
-      lineSeq([[tx+0.4,ty+0.3,th,tx+1.3,ty+0.3,th],[tx+1.3,ty+0.3,th,tx+1.3,ty+1,th],[tx+1.3,ty+1,th,tx+0.4,ty+1,th],[tx+0.4,ty+1,th,tx+0.4,ty+0.3,th]], ip, 0.6, 0.35);
-      if (ip>0.5) { const scrP=(ip-0.5)*2; line(tx+0.4,ty+0.3,th,tx+0.4,ty+0.25,th+0.6*scrP,1,0.6,0.35); line(tx+1.3,ty+0.3,th,tx+1.3,ty+0.25,th+0.6*scrP,1,0.6,0.35); if(scrP>0.8) line(tx+0.4,ty+0.25,th+0.6,tx+1.3,ty+0.25,th+0.6,1,0.6,0.35); }
-      if (ip>0.3) { const mugP=(ip-0.3)/0.7; const mugC=iso(tx+1.7,ty+0.6,th); ctx.beginPath(); ctx.arc(mugC.x,mugC.y,4*mugP,0,Math.PI*2); ctx.strokeStyle=inkAlpha(0.35*mugP); ctx.lineWidth=0.7; ctx.stroke(); line(tx+1.7,ty+0.6,th,tx+1.7,ty+0.6,th+0.2*mugP,1,0.5,0.25); }
+      var ip=(S.table-0.7)/0.3;
+      lnSeq([[tx+0.4,ty+0.3,th,tx+1.3,ty+0.3,th],[tx+1.3,ty+0.3,th,tx+1.3,ty+1,th],[tx+1.3,ty+1,th,tx+0.4,ty+1,th],[tx+0.4,ty+1,th,tx+0.4,ty+0.3,th]], ip, 0.6, 0.35);
+      if (ip>0.5){var sc=(ip-0.5)*2;ln(tx+0.4,ty+0.3,th,tx+0.4,ty+0.25,th+0.6*sc,1,0.6,0.35);ln(tx+1.3,ty+0.3,th,tx+1.3,ty+0.25,th+0.6*sc,1,0.6,0.35);if(sc>0.8)ln(tx+0.4,ty+0.25,th+0.6,tx+1.3,ty+0.25,th+0.6,1,0.6,0.35);}
+      if (ip>0.3){var m2=(ip-0.3)/0.7;var mc=iso(tx+1.7,ty+0.6,th);ctx.beginPath();ctx.arc(mc.x,mc.y,4*m2,0,Math.PI*2);ctx.strokeStyle=ink(0.35*m2);ctx.lineWidth=0.7;ctx.stroke();ln(tx+1.7,ty+0.6,th,tx+1.7,ty+0.6,th+0.2*m2,1,0.5,0.25);}
     }
   }
-
   function drawChair() {
     if (S.chair <= 0) return;
-    function oneChair(cx,cy,backSide) {
-      const cw=0.55,cd=0.55,sh=0.6,bkH=1.15;
-      lineSeq([[cx,cy,sh,cx+cw,cy,sh],[cx+cw,cy,sh,cx+cw,cy+cd,sh],[cx+cw,cy+cd,sh,cx,cy+cd,sh],[cx,cy+cd,sh,cx,cy,sh]], S.chair, 0.9, 0.65);
-      const lp=Math.max(0,(S.chair-0.3)/0.5);
-      [[cx,cy],[cx+cw,cy],[cx+cw,cy+cd],[cx,cy+cd]].forEach(([lx,ly])=>{ line(lx,ly,sh,lx,ly,sh-sh*lp,1,0.6,0.4); });
-      const bp=Math.max(0,(S.chair-0.6)/0.4);
-      if (bp > 0) {
-        if (backSide==='y0') { line(cx,cy,sh,cx,cy,bkH*bp+sh*(1-bp),1,0.9,0.65); line(cx+cw,cy,sh,cx+cw,cy,bkH*bp+sh*(1-bp),1,0.9,0.65); if(bp>0.7) line(cx,cy,bkH,cx+cw,cy,bkH,(bp-0.7)/0.3,0.9,0.65); }
-        else { line(cx,cy+cd,sh,cx,cy+cd,bkH*bp+sh*(1-bp),1,0.9,0.65); line(cx+cw,cy+cd,sh,cx+cw,cy+cd,bkH*bp+sh*(1-bp),1,0.9,0.65); if(bp>0.7) line(cx,cy+cd,bkH,cx+cw,cy+cd,bkH,(bp-0.7)/0.3,0.9,0.65); }
-      }
+    function one(cx,cy,bk){
+      var cw=0.55,cd=0.55,sh=0.6,bkH=1.15;
+      lnSeq([[cx,cy,sh,cx+cw,cy,sh],[cx+cw,cy,sh,cx+cw,cy+cd,sh],[cx+cw,cy+cd,sh,cx,cy+cd,sh],[cx,cy+cd,sh,cx,cy,sh]],S.chair,0.9,0.65);
+      var lp=Math.max(0,(S.chair-0.3)/0.5);
+      [[cx,cy],[cx+cw,cy],[cx+cw,cy+cd],[cx,cy+cd]].forEach(function(c){ln(c[0],c[1],sh,c[0],c[1],sh-sh*lp,1,0.6,0.4);});
+      var bp=Math.max(0,(S.chair-0.6)/0.4);
+      if(bp>0){if(bk==='y0'){ln(cx,cy,sh,cx,cy,bkH*bp+sh*(1-bp),1,0.9,0.65);ln(cx+cw,cy,sh,cx+cw,cy,bkH*bp+sh*(1-bp),1,0.9,0.65);if(bp>0.7)ln(cx,cy,bkH,cx+cw,cy,bkH,(bp-0.7)/0.3,0.9,0.65);}else{ln(cx,cy+cd,sh,cx,cy+cd,bkH*bp+sh*(1-bp),1,0.9,0.65);ln(cx+cw,cy+cd,sh,cx+cw,cy+cd,bkH*bp+sh*(1-bp),1,0.9,0.65);if(bp>0.7)ln(cx,cy+cd,bkH,cx+cw,cy+cd,bkH,(bp-0.7)/0.3,0.9,0.65);}}
     }
-    oneChair(3.1,1.1,'y0'); oneChair(3.1,3.3,'yD');
+    one(3.1,1.1,'y0'); one(3.1,3.3,'yD');
   }
-
   function drawShelf() {
     if (S.shelf <= 0) return;
-    const sy1=0.5,sy2=1.8,topZ=2.8;
-    line(0,sy1,0,0,sy1,topZ*S.shelf,1,1,0.8); line(0,sy2,0,0,sy2,topZ*S.shelf,1,1,0.8);
-    const numS=5;
-    for (let i=0;i<=numS;i++) { const sz=(topZ/numS)*i; if(sz>topZ*S.shelf) break; const sp=Math.max(0,(S.shelf-i*0.1)/0.5); line(0,sy1,sz,0,sy2,sz,Math.min(sp,1),0.7,0.55); line(0,sy1,sz,0.35,sy1,sz,Math.min(sp,1)*0.5,0.4,0.25); }
-    if (S.shelf > 0.6) {
-      const bp=(S.shelf-0.6)/0.4;
-      const books=[[sy1+0.1,0.05,0.45],[sy1+0.25,0.05,0.5],[sy1+0.4,0.05,0.38],[sy1+0.55,0.05,0.42],[sy1+0.7,0.05,0.47],[sy1+0.9,0.05,0.35],[sy1+0.15,topZ/numS+0.05,0.48],[sy1+0.35,topZ/numS+0.05,0.4],[sy1+0.55,topZ/numS+0.05,0.44],[sy1+0.8,topZ/numS+0.05,0.38],[sy1+0.1,topZ/numS*2+0.05,0.42],[sy1+0.3,topZ/numS*2+0.05,0.5]];
-      books.forEach((b,i)=>{ const bookP=Math.max(0,Math.min(1,(bp-i*0.04)*2.5)); if(bookP>0) line(0,b[0],b[1],0,b[0],b[1]+b[2]*bookP,1,0.5,0.3); });
-    }
+    var sy1=0.5,sy2=1.8,tz=2.8;
+    ln(0,sy1,0,0,sy1,tz*S.shelf,1,1,0.8); ln(0,sy2,0,0,sy2,tz*S.shelf,1,1,0.8);
+    for(var i=0;i<=5;i++){var sz=(tz/5)*i;if(sz>tz*S.shelf)break;var sp=Math.max(0,(S.shelf-i*0.1)/0.5);ln(0,sy1,sz,0,sy2,sz,Math.min(sp,1),0.7,0.55);ln(0,sy1,sz,0.35,sy1,sz,Math.min(sp,1)*0.5,0.4,0.25);}
+    if(S.shelf>0.6){var bp=(S.shelf-0.6)/0.4;[[sy1+0.1,0.05,0.45],[sy1+0.25,0.05,0.5],[sy1+0.4,0.05,0.38],[sy1+0.55,0.05,0.42],[sy1+0.7,0.05,0.47],[sy1+0.9,0.05,0.35],[sy1+0.15,tz/5+0.05,0.48],[sy1+0.35,tz/5+0.05,0.4],[sy1+0.55,tz/5+0.05,0.44],[sy1+0.8,tz/5+0.05,0.38],[sy1+0.1,tz/5*2+0.05,0.42],[sy1+0.3,tz/5*2+0.05,0.5]].forEach(function(b,i){var bP=Math.max(0,Math.min(1,(bp-i*0.04)*2.5));if(bP>0)ln(0,b[0],b[1],0,b[0],b[1]+b[2]*bP,1,0.5,0.3);});}
   }
-
   function drawLamp() {
     if (S.lamp <= 0) return;
-    const lx=6,ly=4.2;
-    const bp=Math.min(S.lamp*2,1); const base=iso(lx,ly,0); ctx.beginPath(); ctx.ellipse(base.x,base.y,7*bp,4*bp,-Math.PI/6,0,Math.PI*2); ctx.strokeStyle=inkAlpha(0.5*bp); ctx.lineWidth=0.7; ctx.stroke();
-    if (S.lamp>0.2) { const pp=(S.lamp-0.2)/0.5; line(lx,ly,0,lx,ly,2.8*Math.min(pp,1),1,1,0.8); }
-    if (S.lamp>0.65) {
-      const sp=(S.lamp-0.65)/0.35;
-      lineSeq([[lx-0.4,ly-0.3,3.2,lx,ly,2.8],[lx,ly,2.8,lx+0.4,ly+0.3,3.2],[lx+0.4,ly+0.3,3.2,lx+0.4,ly-0.2,3.2],[lx+0.4,ly-0.2,3.2,lx-0.4,ly-0.3,3.2],[lx-0.4,ly-0.3,3.2,lx-0.4,ly+0.2,3.2]], sp, 0.9, 0.7);
-      if (sp>0.8) { const ga=(sp-0.8)/0.2; const center=iso(lx,ly,2.6); const grad=ctx.createRadialGradient(center.x,center.y,0,center.x,center.y,40*ga); grad.addColorStop(0,inkAlpha(0.1*ga)); grad.addColorStop(1,'rgba(35,30,25,0)'); ctx.fillStyle=grad; ctx.fillRect(center.x-50,center.y-50,100,100); }
-    }
+    var lx=6,ly=4.2,bp=Math.min(S.lamp*2,1),base=iso(lx,ly,0);
+    ctx.beginPath();ctx.ellipse(base.x,base.y,7*bp,4*bp,-Math.PI/6,0,Math.PI*2);ctx.strokeStyle=ink(0.5*bp);ctx.lineWidth=0.7;ctx.stroke();
+    if(S.lamp>0.2)ln(lx,ly,0,lx,ly,2.8*Math.min((S.lamp-0.2)/0.5,1),1,1,0.8);
+    if(S.lamp>0.65){var sp=(S.lamp-0.65)/0.35;lnSeq([[lx-0.4,ly-0.3,3.2,lx,ly,2.8],[lx,ly,2.8,lx+0.4,ly+0.3,3.2],[lx+0.4,ly+0.3,3.2,lx+0.4,ly-0.2,3.2],[lx+0.4,ly-0.2,3.2,lx-0.4,ly-0.3,3.2],[lx-0.4,ly-0.3,3.2,lx-0.4,ly+0.2,3.2]],sp,0.9,0.7);if(sp>0.8){var ga=(sp-0.8)/0.2;var c=iso(lx,ly,2.6);var g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,40*ga);g.addColorStop(0,ink(0.06*ga));g.addColorStop(1,'rgba(35,30,25,0)');ctx.fillStyle=g;ctx.fillRect(c.x-50,c.y-50,100,100);}}
   }
-
   function drawPlant() {
     if (S.plant <= 0) return;
-    const px=6.2,py=0.6;
-    lineSeq([[px-0.2,py-0.15,0,px-0.25,py-0.2,0.4],[px-0.25,py-0.2,0.4,px+0.25,py+0.2,0.4],[px+0.25,py+0.2,0.4,px+0.2,py+0.15,0],[px+0.2,py+0.15,0,px-0.2,py-0.15,0]], S.plant, 0.8, 0.6);
-    if (S.plant > 0.4) {
-      const sp=(S.plant-0.4)/0.6;
-      [{dx:-0.1,dy:-0.08,h:0.9},{dx:0.05,dy:0.05,h:1.1},{dx:-0.15,dy:0.1,h:0.8},{dx:0.12,dy:-0.06,h:1.0}].forEach((s,i)=>{
-        const stemP=Math.max(0,Math.min(1,(sp-i*0.12)*2));
-        if (stemP>0) {
-          line(px,py,0.4,px+s.dx,py+s.dy,0.4+s.h*stemP,1,0.6,0.45);
-          if (stemP>0.7) { const lp2=(stemP-0.7)/0.3; const leafEnd=iso(px+s.dx*3,py+s.dy*2.5,0.4+s.h-0.1); const leafStart=iso(px+s.dx,py+s.dy,0.4+s.h*stemP); ctx.beginPath(); ctx.moveTo(leafStart.x,leafStart.y); ctx.quadraticCurveTo(leafStart.x+(leafEnd.x-leafStart.x)*0.5+5,leafStart.y-8,leafEnd.x,leafEnd.y); ctx.strokeStyle=inkAlpha(0.35*lp2); ctx.lineWidth=0.6; ctx.stroke(); }
-        }
-      });
-    }
+    var px=6.2,py=0.6;
+    lnSeq([[px-0.2,py-0.15,0,px-0.25,py-0.2,0.4],[px-0.25,py-0.2,0.4,px+0.25,py+0.2,0.4],[px+0.25,py+0.2,0.4,px+0.2,py+0.15,0],[px+0.2,py+0.15,0,px-0.2,py-0.15,0]],S.plant,0.8,0.6);
+    if(S.plant>0.4){var sp=(S.plant-0.4)/0.6;[{dx:-0.1,dy:-0.08,h:0.9},{dx:0.05,dy:0.05,h:1.1},{dx:-0.15,dy:0.1,h:0.8},{dx:0.12,dy:-0.06,h:1.0}].forEach(function(s,i){var sP=Math.max(0,Math.min(1,(sp-i*0.12)*2));if(sP>0){ln(px,py,0.4,px+s.dx,py+s.dy,0.4+s.h*sP,1,0.6,0.45);if(sP>0.7){var lp2=(sP-0.7)/0.3;var le=iso(px+s.dx*3,py+s.dy*2.5,0.4+s.h-0.1),ls=iso(px+s.dx,py+s.dy,0.4+s.h*sP);ctx.beginPath();ctx.moveTo(ls.x,ls.y);ctx.quadraticCurveTo(ls.x+(le.x-ls.x)*0.5+5,ls.y-8,le.x,le.y);ctx.strokeStyle=ink(0.35*lp2);ctx.lineWidth=0.6;ctx.stroke();}}});}
   }
-
   function drawPicture() {
     if (S.picture <= 0) return;
-    const px1=5.3,px2=6.5,pz1=2.0,pz2=2.9;
-    lineSeq([[px1,0,pz1,px2,0,pz1],[px2,0,pz1,px2,0,pz2],[px2,0,pz2,px1,0,pz2],[px1,0,pz2,px1,0,pz1]], S.picture, 0.9, 0.6);
-    if (S.picture>0.6) { const ip=(S.picture-0.6)/0.4; const m=0.1; lineSeq([[px1+m,0,pz1+m,px2-m,0,pz1+m],[px2-m,0,pz1+m,px2-m,0,pz2-m],[px2-m,0,pz2-m,px1+m,0,pz2-m],[px1+m,0,pz2-m,px1+m,0,pz1+m]], ip, 0.5, 0.3); }
+    lnSeq([[5.3,0,2,6.5,0,2],[6.5,0,2,6.5,0,2.9],[6.5,0,2.9,5.3,0,2.9],[5.3,0,2.9,5.3,0,2]],S.picture,0.9,0.6);
+    if(S.picture>0.6){var ip=(S.picture-0.6)/0.4;lnSeq([[5.4,0,2.1,6.4,0,2.1],[6.4,0,2.1,6.4,0,2.8],[6.4,0,2.8,5.4,0,2.8],[5.4,0,2.8,5.4,0,2.1]],ip,0.5,0.3);}
   }
-
   function drawRug() {
     if (S.rug <= 0) return;
-    const rx=2,ry=1.5,rw=3.2,rd=2.2;
-    lineSeq([[rx,ry,0.01,rx+rw,ry,0.01],[rx+rw,ry,0.01,rx+rw,ry+rd,0.01],[rx+rw,ry+rd,0.01,rx,ry+rd,0.01],[rx,ry+rd,0.01,rx,ry,0.01]], S.rug, 0.7, 0.35);
-    if (S.rug>0.5) { const ip=(S.rug-0.5)*2; const m=0.25; lineSeq([[rx+m,ry+m,0.01,rx+rw-m,ry+m,0.01],[rx+rw-m,ry+m,0.01,rx+rw-m,ry+rd-m,0.01],[rx+rw-m,ry+rd-m,0.01,rx+m,ry+rd-m,0.01],[rx+m,ry+rd-m,0.01,rx+m,ry+m,0.01]], ip, 0.5, 0.2); }
+    lnSeq([[2,1.5,0.01,5.2,1.5,0.01],[5.2,1.5,0.01,5.2,3.7,0.01],[5.2,3.7,0.01,2,3.7,0.01],[2,3.7,0.01,2,1.5,0.01]],S.rug,0.7,0.35);
+    if(S.rug>0.5){var ip=(S.rug-0.5)*2;lnSeq([[2.25,1.75,0.01,4.95,1.75,0.01],[4.95,1.75,0.01,4.95,3.45,0.01],[4.95,3.45,0.01,2.25,3.45,0.01],[2.25,3.45,0.01,2.25,1.75,0.01]],ip,0.5,0.2);}
   }
-
-  function drawDimensions() {
+  function drawDims() {
     if (S.dims <= 0) return;
-    [[0,0,0],[RW,0,0],[0,RD,0],[RW,RD,0],[0,0,RH],[RW,0,RH]].forEach((c,i)=>{ cross(c[0],c[1],c[2],Math.max(0,(S.dims-i*0.05)/0.5)); });
-    const dp=Math.max(0,(S.dims-0.2)/0.8);
-    dashed(0,RD+0.6,0,RW,RD+0.6,0,dp,0.3); line(0,RD+0.4,0,0,RD+0.8,0,dp,0.5,0.25); line(RW,RD+0.4,0,RW,RD+0.8,0,dp,0.5,0.25);
-    dashed(RW+0.6,0,0,RW+0.6,0,RH,dp,0.3); line(RW+0.4,0,0,RW+0.8,0,0,dp,0.5,0.25); line(RW+0.4,0,RH,RW+0.8,0,RH,dp,0.5,0.25);
-    if (S.dims>0.5) { const tp=(S.dims-0.5)/0.5; ctx.font=`300 ${Math.max(9,Math.min(11,W*0.008))}px Montserrat, sans-serif`; ctx.textAlign='center'; ctx.fillStyle=inkAlpha(0.35*tp); const wMid=iso(RW/2,RD+1,0); ctx.fillText('7 000 mm',wMid.x,wMid.y); const hMid=iso(RW+1,0,RH/2); ctx.fillText('3 800 mm',hMid.x,hMid.y); }
+    [[0,0,0],[RW,0,0],[0,RD,0],[RW,RD,0],[0,0,RH],[RW,0,RH]].forEach(function(c,i){cross(c[0],c[1],c[2],Math.max(0,(S.dims-i*0.05)/0.5));});
+    var dp=Math.max(0,(S.dims-0.2)/0.8);
+    dashed(0,RD+0.6,0,RW,RD+0.6,0,dp,0.3);ln(0,RD+0.4,0,0,RD+0.8,0,dp,0.5,0.25);ln(RW,RD+0.4,0,RW,RD+0.8,0,dp,0.5,0.25);
+    dashed(RW+0.6,0,0,RW+0.6,0,RH,dp,0.3);ln(RW+0.4,0,0,RW+0.8,0,0,dp,0.5,0.25);ln(RW+0.4,0,RH,RW+0.8,0,RH,dp,0.5,0.25);
+    if(S.dims>0.5){var tp=(S.dims-0.5)/0.5;ctx.font='300 '+Math.max(9,Math.min(11,W*0.008))+'px Montserrat,sans-serif';ctx.textAlign='center';ctx.fillStyle=ink(0.35*tp);var wM=iso(RW/2,RD+1,0);ctx.fillText('7 000 mm',wM.x,wM.y);var hM=iso(RW+1,0,RH/2);ctx.fillText('3 800 mm',hM.x,hM.y);}
   }
-
   function drawGlow() {
     if (S.glow <= 0) return;
-    const wCenter=iso(3,0,2.1); const r=Math.min(W,H)*0.5;
-    const grad=ctx.createRadialGradient(wCenter.x,wCenter.y,0,wCenter.x,wCenter.y,r*S.glow);
-    grad.addColorStop(0,inkAlpha(0.08*S.glow)); grad.addColorStop(0.4,inkAlpha(0.03*S.glow)); grad.addColorStop(1,'rgba(35,30,25,0)');
-    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
-    if (S.glow>0.3) { const bp2=(S.glow-0.3)/0.7; ctx.globalAlpha=bp2*0.06*(1-S.fadeOut); const w1=iso(1.5,0,2.5),w2=iso(4.5,0,2.5),f1=iso(1,3,0),f2=iso(5,3.5,0); ctx.beginPath(); ctx.moveTo(w1.x,w1.y); ctx.lineTo(w2.x,w2.y); ctx.lineTo(f2.x,f2.y); ctx.lineTo(f1.x,f1.y); ctx.closePath(); ctx.fillStyle='rgba(35,30,25,0.15)'; ctx.fill(); ctx.globalAlpha=1; }
+    var wC=iso(3,0,2.1),r=Math.min(W,H)*0.5;
+    var g=ctx.createRadialGradient(wC.x,wC.y,0,wC.x,wC.y,r*S.glow);
+    g.addColorStop(0,ink(0.05*S.glow));g.addColorStop(0.4,ink(0.02*S.glow));g.addColorStop(1,'rgba(35,30,25,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    if(S.glow>0.3){var bp2=(S.glow-0.3)/0.7;ctx.globalAlpha=bp2*0.04*(1-S.fadeOut);var w1=iso(1.5,0,2.5),w2=iso(4.5,0,2.5),f1=iso(1,3,0),f2=iso(5,3.5,0);ctx.beginPath();ctx.moveTo(w1.x,w1.y);ctx.lineTo(w2.x,w2.y);ctx.lineTo(f2.x,f2.y);ctx.lineTo(f1.x,f1.y);ctx.closePath();ctx.fillStyle='rgba(35,30,25,0.15)';ctx.fill();ctx.globalAlpha=1;}
   }
-
   function drawParticles() {
     if (S.particles <= 0) return;
-    dustParticles.forEach(p => {
-      // Scroll-driven: shift Y based on scroll progress
-      const scrollY = (p.baseY + S.particles * 0.5) % 1;
-      const driftX = p.x + p.drift * S.particles;
-      const dx = ((driftX % 1) + 1) % 1;
-      ctx.beginPath();
-      ctx.arc(dx * W, scrollY * H, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = inkAlpha(p.alpha * S.particles);
-      ctx.fill();
+    dust.forEach(function(p) {
+      p.y -= p.speed; p.x += p.drift;
+      if (p.y < -0.02) { p.y = 1.02; p.x = Math.random(); }
+      if (p.x < 0 || p.x > 1) p.x = Math.random();
+      ctx.beginPath(); ctx.arc(p.x * W, p.y * H, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = ink(p.alpha * S.particles); ctx.fill();
     });
   }
 
-  // ═══ RENDER — continuous RAF loop ═══
-
+  // === RENDER LOOP ===
   function render() {
-    if (!W || !H) return;
+    if (!running) return;
     ctx.clearRect(0, 0, W, H);
     drawGlow(); drawGrid(); drawRug(); drawFloor(); drawWalls(); drawCeiling();
     drawWindow(); drawDoor(); drawShelf(); drawPicture(); drawTable(); drawChair();
-    drawLamp(); drawPlant(); drawDimensions(); drawParticles();
+    drawLamp(); drawPlant(); drawDims(); drawParticles();
+    requestAnimationFrame(render);
   }
 
-  function rafLoop() {
-    if (needsRender) {
-      render();
-      needsRender = false;
-    }
-    requestAnimationFrame(rafLoop);
-  }
-  requestAnimationFrame(rafLoop);
+  // === TIMELINE (paused, time-based) ===
+  resize();
+  window.addEventListener('resize', function() { resize(); });
 
-  // ═══ SCROLL-DRIVEN GSAP TIMELINE ═══
+  var tl = gsap.timeline({ paused: true });
+  tl.to(S, { grid: 1, duration: 0.8, ease: 'power2.out' }, 0);
+  tl.to(S, { particles: 0.5, duration: 1, ease: 'power1.in' }, 0);
+  tl.to(S, { floor: 1, duration: 0.8, ease: 'power2.inOut' }, 0.25);
+  tl.to(S, { wallR: 1, duration: 1, ease: 'power2.out' }, 0.7);
+  tl.to(S, { wallL: 1, duration: 1, ease: 'power2.out' }, 0.85);
+  tl.to(S, { ceiling: 1, duration: 0.6, ease: 'power2.out' }, 1.6);
+  tl.to(S, { window: 1, duration: 0.8, ease: 'power2.inOut' }, 1.6);
+  tl.to(S, { door: 1, duration: 0.6, ease: 'power2.out' }, 2.0);
+  tl.to(S, { rug: 1, duration: 0.6, ease: 'power2.out' }, 2.2);
+  tl.to(S, { table: 1, duration: 0.9, ease: 'power2.out' }, 2.3);
+  tl.to(S, { chair: 1, duration: 0.8, ease: 'power2.out' }, 2.6);
+  tl.to(S, { shelf: 1, duration: 0.9, ease: 'power2.out' }, 2.4);
+  tl.to(S, { lamp: 1, duration: 0.8, ease: 'power2.out' }, 2.8);
+  tl.to(S, { plant: 1, duration: 0.7, ease: 'power2.out' }, 3.0);
+  tl.to(S, { picture: 1, duration: 0.5, ease: 'power2.out' }, 3.1);
+  tl.to(S, { dims: 1, duration: 0.7, ease: 'power2.out' }, 3.3);
+  tl.to(S, { glow: 1, duration: 1.2, ease: 'power2.inOut' }, 3.6);
+  tl.to(S, { particles: 0.8, duration: 0.8, ease: 'power1.in' }, 3.8);
 
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: wrap,
-      start: 'top 85%',
-      end: 'bottom 15%',
-      scrub: 0.5,
-      onUpdate: () => { needsRender = true; },
+  // === TRIGGER: play once when section enters viewport ===
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top 75%',
+    onEnter: function() {
+      if (played) return;
+      played = true;
+      running = true;
+      resize();
+      requestAnimationFrame(render);
+      tl.play(0);
+      console.log('Process canvas playing:', W, 'x', H);
     }
   });
 
-  // Phase 1: Grid + Floor (0 – 0.19)
-  tl.to(S, { grid: 1, duration: 0.8, ease: 'none' }, 0);
-  tl.to(S, { particles: 0.5, duration: 1, ease: 'none' }, 0);
-  tl.to(S, { floor: 1, duration: 0.8, ease: 'none' }, 0.25);
-
-  // Phase 2: Walls rise (0.7 – 2.2)
-  tl.to(S, { wallR: 1, duration: 1, ease: 'none' }, 0.7);
-  tl.to(S, { wallL: 1, duration: 1, ease: 'none' }, 0.85);
-  tl.to(S, { ceiling: 1, duration: 0.6, ease: 'none' }, 1.6);
-
-  // Phase 3: Window + Door
-  tl.to(S, { window: 1, duration: 0.8, ease: 'none' }, 1.6);
-  tl.to(S, { door: 1, duration: 0.6, ease: 'none' }, 2.0);
-
-  // Phase 4: Furniture
-  tl.to(S, { rug: 1, duration: 0.6, ease: 'none' }, 2.2);
-  tl.to(S, { table: 1, duration: 0.9, ease: 'none' }, 2.3);
-  tl.to(S, { chair: 1, duration: 0.8, ease: 'none' }, 2.6);
-  tl.to(S, { shelf: 1, duration: 0.9, ease: 'none' }, 2.4);
-  tl.to(S, { lamp: 1, duration: 0.8, ease: 'none' }, 2.8);
-  tl.to(S, { plant: 1, duration: 0.7, ease: 'none' }, 3.0);
-  tl.to(S, { picture: 1, duration: 0.5, ease: 'none' }, 3.1);
-
-  // Phase 5: Dimensions
-  tl.to(S, { dims: 1, duration: 0.7, ease: 'none' }, 3.3);
-
-  // Phase 6: Golden light
-  tl.to(S, { glow: 1, duration: 1.2, ease: 'none' }, 3.6);
-  tl.to(S, { particles: 0.8, duration: 0.8, ease: 'none' }, 3.8);
-
-  // Hold completed state (no dissolve — room stays visible as backdrop)
-  tl.to({}, { duration: 0.8 }, 4.8);
-
-  // Initial render (blank canvas visible before scroll)
-  render();
+  console.log('initProcessCanvas: ready, waiting for scroll trigger');
 }
 
 // ═══ SCROLL PROGRESS ═══
