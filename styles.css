@@ -3,6 +3,15 @@
    Awwwards-level Architecture Studio
    ═══════════════════════════════════════ */
 
+/* ═══ CUSTOM FONT ═══ */
+@font-face {
+  font-family: 'Brolian';
+  src: url('Brolian-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: auto; }
 html.lenis, html.lenis body { height: auto; }
@@ -55,32 +64,21 @@ body, html {
   z-index: 10000; transform-origin: left; transform: scaleX(0);
 }
 
-/* ═══ PAGE LOADER — CANVAS ═══ */
-.page-loader {
-  position: fixed; inset: 0; background: var(--dark-1);
-  z-index: 9999; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+/* ═══ PROCESS CANVAS — WIREFRAME ROOM ═══ */
+.process-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 80vh;
+  margin-bottom: 60px;
+  overflow: hidden;
+  padding: 0 clamp(16px, 4vw, 60px);
 }
-.loader-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-}
-.loader-progress {
-  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-  z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
-}
-.loader-bar-track {
-  width: 120px; height: 1px;
-  background: rgba(194, 164, 126, 0.15);
-  overflow: hidden; border-radius: 1px;
-}
-.loader-bar-fill {
-  width: 0%; height: 100%; background: var(--gold);
-  transition: width 0.1s ease;
-}
-.loader-pct {
-  font-family: var(--font-heading); font-size: 10px;
-  font-weight: 300; letter-spacing: 0.15em;
-  color: rgba(194, 164, 126, 0.4);
+.process-canvas {
+  width: 100%;
+  height: 100%;
+  background: var(--dark-1);
+  border-radius: 16px;
+  display: block;
 }
 
 /* ═══ HEADER ═══ */
@@ -199,14 +197,15 @@ body, html {
   text-align: center;
 }
 .hero-title {
-  font-family: var(--font-display);
+  font-family: 'Brolian', var(--font-display);
   font-size: clamp(42px, 7vw, 100px);
-  font-weight: 300; line-height: 1.05;
+  font-weight: 900; line-height: 1.05;
   color: var(--text-light); margin-bottom: 32px;
+  letter-spacing: 0.02em;
 }
 .hero-title .line { display: block; overflow: hidden; }
 .hero-title .line-inner { display: block; transform: translateY(110%); }
-.hero-title .accent { color: var(--gold); font-style: italic; font-weight: 400; }
+.hero-title .accent { color: var(--gold); font-family: var(--font-display); font-style: italic; font-weight: 400; }
 
 /* Portfolio button — centered */
 .hero-btn-wrap {
@@ -268,7 +267,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
    ABOUT — CLIP-PATH REVEAL
    ═══════════════════════════ */
 .about-section {
-  background-color: var(--dark-2); color: var(--text-light);
+  background-color: var(--warm-white); color: var(--text-dark);
   padding: clamp(100px, 14vw, 200px) clamp(24px, 6vw, 100px);
 }
 .about-grid {
@@ -285,25 +284,28 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 .about-heading {
   font-family: var(--font-display);
   font-size: clamp(32px, 4.5vw, 56px);
-  font-weight: 300; line-height: 1.15; margin-bottom: 40px; color: var(--text-light);
+  font-weight: 300; line-height: 1.15; margin-bottom: 40px; color: var(--text-dark);
 }
 .about-heading .accent { color: var(--gold); font-style: italic; }
 .about-text p {
   font-size: 0.95rem; line-height: 1.9; margin-bottom: 24px;
-  font-weight: 300; color: rgba(232,228,222,0.75); font-style: italic;
+  font-weight: 300; color: var(--text-muted-dark); font-style: italic;
 }
 .about-image-col { position: relative; }
 .about-portrait-clip {
   position: relative; overflow: hidden;
   clip-path: inset(100% 0 0 0);
+  z-index: 2;
 }
 .about-portrait {
   display: block; width: 100%; height: auto;
-  object-fit: cover; transform: scale(1.15);
+  object-fit: cover; transform: scale(1.05);
 }
 .about-frame {
-  position: absolute; inset: -12px;
+  position: absolute;
+  top: 20px; left: 20px; right: -20px; bottom: -20px;
   border: 1px solid var(--gold); opacity: 0; pointer-events: none;
+  z-index: 1;
 }
 
 /* ═══════════════════════════
@@ -662,6 +664,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   .header-nav ul { gap: 28px; }
   .about-grid { grid-template-columns: 1fr; gap: 48px; text-align: center; }
   .about-image-col { max-width: 320px; margin: 0 auto; order: -1; }
+  .about-frame { top: 16px; left: 16px; right: -16px; bottom: -16px; }
   .about-text p { text-align: center; }
   .section-label { justify-content: center; }
   .hero-counter { display: none; }
