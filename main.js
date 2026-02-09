@@ -259,7 +259,9 @@ function initProcessCanvas() {
   resize();
   window.addEventListener('resize', function() { resize(); });
 
-  var tl = gsap.timeline({ paused: true });
+  var tl = gsap.timeline({ paused: true, onComplete: function() {
+    document.dispatchEvent(new CustomEvent('roomAnimationDone'));
+  }});
   tl.to(S, { grid: 1, duration: 0.8, ease: 'power2.out' }, 0);
   tl.to(S, { particles: 0.5, duration: 1, ease: 'power1.in' }, 0);
   tl.to(S, { floor: 1, duration: 0.8, ease: 'power2.inOut' }, 0.25);
@@ -655,20 +657,23 @@ function initHorizontalScroll() {
 // ═══ STACKING CARDS — PROCESS ═══
 function initStackingCards() {
   const cards = gsap.utils.toArray('.stack-card');
+  const header = document.querySelector('.process-header');
   if (cards.length === 0) return;
 
-  cards.forEach((card, i) => {
-    gsap.from(card, {
-      opacity: 0,
-      y: 60,
-      duration: 0.8,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: card,
-        start: 'top 80%',
-        toggleActions: 'play none none none'
-      }
-    });
+  // Hide cards + header initially — they wait for wireframe animation
+  gsap.set(cards, { opacity: 0, y: 60 });
+  if (header) gsap.set(header, { opacity: 0, y: 30 });
+
+  // Listen for custom event dispatched when room animation completes
+  document.addEventListener('roomAnimationDone', function() {
+    const tl = gsap.timeline();
+    if (header) {
+      tl.to(header, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0);
+    }
+    tl.to(cards, {
+      opacity: 1, y: 0, duration: 0.8,
+      stagger: 0.15, ease: 'power2.out'
+    }, 0.2);
   });
 }
 
