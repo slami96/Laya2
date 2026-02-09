@@ -64,19 +64,13 @@ body, html {
   z-index: 10000; transform-origin: left; transform: scaleX(0);
 }
 
-/* ═══ PROCESS CANVAS — WIREFRAME ROOM ═══ */
-.process-canvas-wrap {
-  position: relative;
-  width: 100%;
-  height: 80vh;
-  margin-bottom: 60px;
-  overflow: hidden;
-}
+/* ═══ PROCESS CANVAS — WIREFRAME ROOM (absolute background) ═══ */
 .process-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-  /* transparent — no background box */
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ═══ HEADER ═══ */
@@ -380,10 +374,13 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
    PROCESS — STACKING CARDS
    ═══════════════════════════ */
 .process-section {
+  position: relative;
   background-color: var(--cream);
   padding: clamp(80px, 10vw, 140px) 0;
+  overflow: hidden;
 }
 .process-header {
+  position: relative; z-index: 1;
   text-align: center;
   padding: 0 clamp(24px, 6vw, 100px);
   margin-bottom: 60px;
@@ -396,6 +393,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 .process-heading .accent { color: var(--gold); font-style: italic; }
 
 .stacking-cards {
+  position: relative; z-index: 1;
   max-width: 800px; margin: 0 auto;
   padding: 0 clamp(24px, 4vw, 60px);
   padding-bottom: 200px;
