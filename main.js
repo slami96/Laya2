@@ -38,15 +38,19 @@ function initProcessCanvas() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   let W, H;
+  let needsRender = true;
 
   function resize() {
-    const rect = canvas.getBoundingClientRect();
+    const rect = wrap.getBoundingClientRect();
     W = rect.width;
     H = rect.height;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     recalcIso();
+    needsRender = true;
   }
 
   // ─── Isometric math ───
@@ -362,25 +366,34 @@ function initProcessCanvas() {
     });
   }
 
-  // ═══ RENDER (called on every scroll tick) ═══
+  // ═══ RENDER — continuous RAF loop ═══
+
   function render() {
+    if (!W || !H) return;
     ctx.clearRect(0, 0, W, H);
     drawGlow(); drawGrid(); drawRug(); drawFloor(); drawWalls(); drawCeiling();
     drawWindow(); drawDoor(); drawShelf(); drawPicture(); drawTable(); drawChair();
     drawLamp(); drawPlant(); drawDimensions(); drawParticles();
   }
 
+  function rafLoop() {
+    if (needsRender) {
+      render();
+      needsRender = false;
+    }
+    requestAnimationFrame(rafLoop);
+  }
+  requestAnimationFrame(rafLoop);
+
   // ═══ SCROLL-DRIVEN GSAP TIMELINE ═══
-  // Maps original timed phases (0–5.4s) → scroll progress (0–1)
-  // Total original duration = 5.4s, so we normalize all times by /5.4
 
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: wrap,
-      start: 'top 80%',
-      end: 'bottom 20%',
+      start: 'top 85%',
+      end: 'bottom 15%',
       scrub: 0.5,
-      onUpdate: () => render(),
+      onUpdate: () => { needsRender = true; },
     }
   });
 
@@ -1076,28 +1089,23 @@ function initSectionReveals() {
 function initAll() {
   console.log('LAYA V2 — Initializing...');
 
-  initLenis();
-  initScrollProgress();
-  initHeader();
-  initMobileMenu();
-  initScrollIndicator();
-  initHero();
-  initAbout();
-  initHorizontalScroll();
-  initProcessCanvas();
-  initStackingCards();
-  initShowcase();
-  initProjectModal();
-  initContact();
-  initFooter();
-  initMagneticEffects();
-  initVelocitySkew();
-  initSectionReveals();
+  const inits = [
+    initLenis, initScrollProgress, initHeader, initMobileMenu,
+    initScrollIndicator, initHero, initAbout, initHorizontalScroll,
+    initProcessCanvas, initStackingCards, initShowcase,
+    initProjectModal, initContact, initFooter,
+    initMagneticEffects, initVelocitySkew, initSectionReveals
+  ];
+
+  inits.forEach(fn => {
+    try { fn(); }
+    catch (e) { console.error(`${fn.name} failed:`, e); }
+  });
 
   setTimeout(() => {
-    ScrollTrigger.refresh();
+    ScrollTrigger.refresh(true);
     console.log('LAYA V2 — Ready.');
-  }, 400);
+  }, 600);
 
   let resizeTimer;
   window.addEventListener('resize', () => {
