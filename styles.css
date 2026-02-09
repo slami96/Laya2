@@ -95,6 +95,8 @@ body, html {
 
 /* Logo — aligned with nav items, not touching top */
 .header-logo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -48%); z-index: 2; }
+.header-logo img { filter: brightness(0); transition: filter 0.3s ease; }
+.header:not(.header-light) .header-logo img { filter: brightness(1); }
 .logo-link { text-decoration: none; display: inline-block; }
 .logo-link img { height: 110px; width: auto; display: block; transition: transform 0.4s var(--ease); }
 .logo-link:hover img { transform: scale(1.06); }
