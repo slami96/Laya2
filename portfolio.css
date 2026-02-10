@@ -4,7 +4,7 @@
 
 /* ═══ PORTFOLIO HERO ═══ */
 .portfolio-hero {
-  background: var(--page-bg);
+  background: var(--warm-white);
   padding: calc(var(--header-height) + 80px) clamp(24px, 6vw, 100px) 80px;
   text-align: center;
   position: relative;
@@ -21,7 +21,7 @@
   font-family: var(--font-display);
   font-size: clamp(42px, 6vw, 80px);
   font-weight: 300;
-  color: var(--warm-white);
+  color: var(--text-dark);
   line-height: 1.1;
   margin-bottom: 16px;
 }
@@ -31,12 +31,12 @@
   font-size: 11px;
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: rgba(245,240,234,0.55);
+  color: var(--text-muted-dark);
 }
 
 /* ═══ PORTFOLIO GRID ═══ */
 .portfolio-section {
-  background: var(--page-bg);
+  background: var(--cream);
   padding: clamp(60px, 8vw, 100px) clamp(16px, 4vw, 60px);
   min-height: 100vh;
 }
@@ -55,7 +55,7 @@
   border-radius: 8px;
   cursor: pointer;
   aspect-ratio: 4/3;
-  background: rgba(255,255,255,0.08);
+  background: var(--warm-white);
   box-shadow: 0 4px 24px rgba(0,0,0,0.06);
   transition: box-shadow 0.5s ease;
 }
@@ -225,15 +225,15 @@
 
 /* ═══ BACK LINK ═══ */
 .portfolio-back {
-  background: var(--page-bg);
+  background: var(--warm-white);
   padding: 40px clamp(24px, 6vw, 100px);
   text-align: center;
-  border-top: 1px solid rgba(194,164,126,0.15);
+  border-top: 1px solid var(--border-light);
 }
 .portfolio-back a {
   display: inline-flex;
   align-items: center; gap: 10px;
-  color: rgba(245,240,234,0.55);
+  color: var(--text-muted-dark);
   font-family: var(--font-heading);
   font-size: 0.75rem;
   letter-spacing: 0.15em;
