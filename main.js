@@ -75,7 +75,7 @@ function initProcessCanvas() {
     dims: 0, glow: 0, particles: 0, fadeOut: 0,
   };
 
-  function ink(a) { return 'rgba(245,240,234,' + (a * (1 - S.fadeOut)) + ')'; }
+  function ink(a) { return 'rgba(35,30,25,' + (a * (1 - S.fadeOut)) + ')'; }
 
   function penTip(p, prog) {
     if (prog <= 0 || prog >= 1) return;
@@ -200,7 +200,7 @@ function initProcessCanvas() {
     var lx=6,ly=4.2,bp=Math.min(S.lamp*2,1),base=iso(lx,ly,0);
     ctx.beginPath();ctx.ellipse(base.x,base.y,7*bp,4*bp,-Math.PI/6,0,Math.PI*2);ctx.strokeStyle=ink(0.5*bp);ctx.lineWidth=0.7;ctx.stroke();
     if(S.lamp>0.2)ln(lx,ly,0,lx,ly,2.8*Math.min((S.lamp-0.2)/0.5,1),1,1,0.8);
-    if(S.lamp>0.65){var sp=(S.lamp-0.65)/0.35;lnSeq([[lx-0.4,ly-0.3,3.2,lx,ly,2.8],[lx,ly,2.8,lx+0.4,ly+0.3,3.2],[lx+0.4,ly+0.3,3.2,lx+0.4,ly-0.2,3.2],[lx+0.4,ly-0.2,3.2,lx-0.4,ly-0.3,3.2],[lx-0.4,ly-0.3,3.2,lx-0.4,ly+0.2,3.2]],sp,0.9,0.7);if(sp>0.8){var ga=(sp-0.8)/0.2;var c=iso(lx,ly,2.6);var g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,40*ga);g.addColorStop(0,ink(0.06*ga));g.addColorStop(1,'rgba(245,240,234,0)');ctx.fillStyle=g;ctx.fillRect(c.x-50,c.y-50,100,100);}}
+    if(S.lamp>0.65){var sp=(S.lamp-0.65)/0.35;lnSeq([[lx-0.4,ly-0.3,3.2,lx,ly,2.8],[lx,ly,2.8,lx+0.4,ly+0.3,3.2],[lx+0.4,ly+0.3,3.2,lx+0.4,ly-0.2,3.2],[lx+0.4,ly-0.2,3.2,lx-0.4,ly-0.3,3.2],[lx-0.4,ly-0.3,3.2,lx-0.4,ly+0.2,3.2]],sp,0.9,0.7);if(sp>0.8){var ga=(sp-0.8)/0.2;var c=iso(lx,ly,2.6);var g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,40*ga);g.addColorStop(0,ink(0.06*ga));g.addColorStop(1,'rgba(35,30,25,0)');ctx.fillStyle=g;ctx.fillRect(c.x-50,c.y-50,100,100);}}
   }
   function drawPlant() {
     if (S.plant <= 0) return;
@@ -230,9 +230,9 @@ function initProcessCanvas() {
     if (S.glow <= 0) return;
     var wC=iso(3,0,2.1),r=Math.min(W,H)*0.5;
     var g=ctx.createRadialGradient(wC.x,wC.y,0,wC.x,wC.y,r*S.glow);
-    g.addColorStop(0,ink(0.05*S.glow));g.addColorStop(0.4,ink(0.02*S.glow));g.addColorStop(1,'rgba(245,240,234,0)');
+    g.addColorStop(0,ink(0.05*S.glow));g.addColorStop(0.4,ink(0.02*S.glow));g.addColorStop(1,'rgba(35,30,25,0)');
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    if(S.glow>0.3){var bp2=(S.glow-0.3)/0.7;ctx.globalAlpha=bp2*0.04*(1-S.fadeOut);var w1=iso(1.5,0,2.5),w2=iso(4.5,0,2.5),f1=iso(1,3,0),f2=iso(5,3.5,0);ctx.beginPath();ctx.moveTo(w1.x,w1.y);ctx.lineTo(w2.x,w2.y);ctx.lineTo(f2.x,f2.y);ctx.lineTo(f1.x,f1.y);ctx.closePath();ctx.fillStyle='rgba(245,240,234,0.08)';ctx.fill();ctx.globalAlpha=1;}
+    if(S.glow>0.3){var bp2=(S.glow-0.3)/0.7;ctx.globalAlpha=bp2*0.04*(1-S.fadeOut);var w1=iso(1.5,0,2.5),w2=iso(4.5,0,2.5),f1=iso(1,3,0),f2=iso(5,3.5,0);ctx.beginPath();ctx.moveTo(w1.x,w1.y);ctx.lineTo(w2.x,w2.y);ctx.lineTo(f2.x,f2.y);ctx.lineTo(f1.x,f1.y);ctx.closePath();ctx.fillStyle='rgba(35,30,25,0.15)';ctx.fill();ctx.globalAlpha=1;}
   }
   function drawParticles() {
     if (S.particles <= 0) return;
