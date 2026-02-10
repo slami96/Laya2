@@ -21,7 +21,7 @@ body, html {
   font-family: 'DM Sans', sans-serif;
   color: #2d2d2d;
   overflow-x: hidden;
-  background-color: #0a0a08;
+  background-color: var(--page-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -419,7 +419,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 /* ═══════════════════════════
    SHOWCASE — PINNED PORTFOLIO
    ═══════════════════════════ */
-.showcase-section { background: var(--dark-1); color: var(--text-light); }
+.showcase-section { background: var(--page-bg); color: var(--text-light); }
 .showcase-trigger { min-height: 400vh; position: relative; }
 .showcase-sticky {
   position: sticky; top: 0; height: 100vh;
@@ -434,7 +434,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 .showcase-image.active { opacity: 1; transform: scale(1); }
 .showcase-image-overlay {
   position: absolute; inset: 0;
-  background: linear-gradient(to right, transparent 60%, var(--dark-1) 100%);
+  background: linear-gradient(to right, transparent 60%, var(--page-bg) 100%);
   z-index: 2;
 }
 .showcase-list-side {
@@ -660,7 +660,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   .showcase-trigger { min-height: auto !important; }
   .showcase-sticky { position: relative; height: auto; grid-template-columns: 1fr; }
   .showcase-image-side { height: 40vh; }
-  .showcase-image-overlay { background: linear-gradient(to bottom, transparent 60%, var(--dark-1) 100%); }
+  .showcase-image-overlay { background: linear-gradient(to bottom, transparent 60%, var(--page-bg) 100%); }
   .showcase-list-side { padding: 40px clamp(24px, 6vw, 80px) 80px; }
   .project-modal-prev { left: 12px; }
   .project-modal-next { right: 12px; }
