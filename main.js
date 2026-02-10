@@ -75,7 +75,7 @@ function initProcessCanvas() {
     dims: 0, glow: 0, particles: 0, fadeOut: 0,
   };
 
-  function ink(a) { return 'rgba(35,30,25,' + (a * (1 - S.fadeOut)) + ')'; }
+  function ink(a) { return 'rgba(245,240,234,' + (a * (1 - S.fadeOut)) + ')'; }
 
   function penTip(p, prog) {
     if (prog <= 0 || prog >= 1) return;
@@ -200,7 +200,7 @@ function initProcessCanvas() {
     var lx=6,ly=4.2,bp=Math.min(S.lamp*2,1),base=iso(lx,ly,0);
     ctx.beginPath();ctx.ellipse(base.x,base.y,7*bp,4*bp,-Math.PI/6,0,Math.PI*2);ctx.strokeStyle=ink(0.5*bp);ctx.lineWidth=0.7;ctx.stroke();
     if(S.lamp>0.2)ln(lx,ly,0,lx,ly,2.8*Math.min((S.lamp-0.2)/0.5,1),1,1,0.8);
-    if(S.lamp>0.65){var sp=(S.lamp-0.65)/0.35;lnSeq([[lx-0.4,ly-0.3,3.2,lx,ly,2.8],[lx,ly,2.8,lx+0.4,ly+0.3,3.2],[lx+0.4,ly+0.3,3.2,lx+0.4,ly-0.2,3.2],[lx+0.4,ly-0.2,3.2,lx-0.4,ly-0.3,3.2],[lx-0.4,ly-0.3,3.2,lx-0.4,ly+0.2,3.2]],sp,0.9,0.7);if(sp>0.8){var ga=(sp-0.8)/0.2;var c=iso(lx,ly,2.6);var g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,40*ga);g.addColorStop(0,ink(0.06*ga));g.addColorStop(1,'rgba(35,30,25,0)');ctx.fillStyle=g;ctx.fillRect(c.x-50,c.y-50,100,100);}}
+    if(S.lamp>0.65){var sp=(S.lamp-0.65)/0.35;lnSeq([[lx-0.4,ly-0.3,3.2,lx,ly,2.8],[lx,ly,2.8,lx+0.4,ly+0.3,3.2],[lx+0.4,ly+0.3,3.2,lx+0.4,ly-0.2,3.2],[lx+0.4,ly-0.2,3.2,lx-0.4,ly-0.3,3.2],[lx-0.4,ly-0.3,3.2,lx-0.4,ly+0.2,3.2]],sp,0.9,0.7);if(sp>0.8){var ga=(sp-0.8)/0.2;var c=iso(lx,ly,2.6);var g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,40*ga);g.addColorStop(0,ink(0.06*ga));g.addColorStop(1,'rgba(245,240,234,0)');ctx.fillStyle=g;ctx.fillRect(c.x-50,c.y-50,100,100);}}
   }
   function drawPlant() {
     if (S.plant <= 0) return;
@@ -230,9 +230,9 @@ function initProcessCanvas() {
     if (S.glow <= 0) return;
     var wC=iso(3,0,2.1),r=Math.min(W,H)*0.5;
     var g=ctx.createRadialGradient(wC.x,wC.y,0,wC.x,wC.y,r*S.glow);
-    g.addColorStop(0,ink(0.05*S.glow));g.addColorStop(0.4,ink(0.02*S.glow));g.addColorStop(1,'rgba(35,30,25,0)');
+    g.addColorStop(0,ink(0.05*S.glow));g.addColorStop(0.4,ink(0.02*S.glow));g.addColorStop(1,'rgba(245,240,234,0)');
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    if(S.glow>0.3){var bp2=(S.glow-0.3)/0.7;ctx.globalAlpha=bp2*0.04*(1-S.fadeOut);var w1=iso(1.5,0,2.5),w2=iso(4.5,0,2.5),f1=iso(1,3,0),f2=iso(5,3.5,0);ctx.beginPath();ctx.moveTo(w1.x,w1.y);ctx.lineTo(w2.x,w2.y);ctx.lineTo(f2.x,f2.y);ctx.lineTo(f1.x,f1.y);ctx.closePath();ctx.fillStyle='rgba(35,30,25,0.15)';ctx.fill();ctx.globalAlpha=1;}
+    if(S.glow>0.3){var bp2=(S.glow-0.3)/0.7;ctx.globalAlpha=bp2*0.04*(1-S.fadeOut);var w1=iso(1.5,0,2.5),w2=iso(4.5,0,2.5),f1=iso(1,3,0),f2=iso(5,3.5,0);ctx.beginPath();ctx.moveTo(w1.x,w1.y);ctx.lineTo(w2.x,w2.y);ctx.lineTo(f2.x,f2.y);ctx.lineTo(f1.x,f1.y);ctx.closePath();ctx.fillStyle='rgba(245,240,234,0.08)';ctx.fill();ctx.globalAlpha=1;}
   }
   function drawParticles() {
     if (S.particles <= 0) return;
@@ -588,70 +588,24 @@ function initAbout() {
 
 // ═══ HORIZONTAL SCROLL — SERVICES ═══
 function initHorizontalScroll() {
-  if (window.innerWidth <= 992) return;
+  // Services — vertical grid with stagger reveal
+  const section = document.querySelector('.services-section');
+  const cards = gsap.utils.toArray('.srv-card');
+  if (!section || cards.length === 0) return;
 
-  const trigger = document.querySelector('.horizontal-trigger');
-  const container = document.querySelector('.horizontal-container');
-  const track = document.querySelector('.horizontal-track');
-  const dots = gsap.utils.toArray('.hs-dot');
-  const cards = gsap.utils.toArray('.hs-card');
+  gsap.set(cards, { opacity: 0, y: 50, scale: 0.95 });
 
-  if (!trigger || !track) return;
-
-  const totalWidth = track.scrollWidth;
-  const viewportWidth = window.innerWidth;
-  const scrollDistance = totalWidth - viewportWidth;
-
-  // Extra buffer so last card is fully visible before unpin
-  const endValue = scrollDistance + viewportWidth * 0.5;
-
-  // Set trigger height to match
-  trigger.style.height = (endValue + window.innerHeight) + 'px';
-
-  gsap.to(track, {
-    x: -scrollDistance,
-    ease: 'none',
-    scrollTrigger: {
-      trigger: trigger,
-      start: 'top top',
-      end: `+=${endValue}`,
-      pin: container,
-      scrub: 1,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        const progress = self.progress;
-        // Map progress to panels (last 20% is buffer padding)
-        const adjustedProgress = Math.min(progress / 0.8, 1);
-        const panelCount = dots.length;
-        const activeIndex = Math.min(Math.floor(adjustedProgress * panelCount), panelCount - 1);
-        dots.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
-      }
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top 60%',
+    onEnter: () => {
+      gsap.to(cards, {
+        opacity: 1, y: 0, scale: 1,
+        duration: 0.8, stagger: 0.15,
+        ease: 'power2.out'
+      });
     }
   });
-
-  // 3D tilt on service cards
-  if (window.innerWidth > 768) {
-    cards.forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        gsap.to(card, {
-          rotateY: x * 8,
-          rotateX: -y * 6,
-          duration: 0.4,
-          ease: 'power2.out',
-          transformPerspective: 1000
-        });
-      });
-      card.addEventListener('mouseleave', () => {
-        gsap.to(card, {
-          rotateY: 0, rotateX: 0,
-          duration: 0.6, ease: 'power2.out'
-        });
-      });
-    });
-  }
 }
 
 // ═══ STACKING CARDS — PROCESS ═══
