@@ -83,7 +83,7 @@ body, html {
   transition: background-color 0.5s ease, backdrop-filter 0.5s ease;
 }
 .site-header.header-scrolled {
-  background-color: rgba(10, 10, 8, 0.92);
+  background-color: rgba(159, 151, 150, 0.92);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
 .site-header.header-light {
