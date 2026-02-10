@@ -443,7 +443,7 @@ function initHero() {
   // Slideshow
   if (images.length > 1) {
     let currentIndex = 0;
-    const SLIDE_DURATION = 5000;
+    const SLIDE_DURATION = 3000;
 
     function switchImage() {
       const prevIndex = currentIndex;
