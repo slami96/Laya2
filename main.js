@@ -445,9 +445,10 @@ function initHero() {
     let currentIndex = 0;
     const SLIDE_DURATION = 3000;
 
-    function switchImage() {
+    function goTo(newIndex) {
+      if (newIndex === currentIndex) return;
       const prevIndex = currentIndex;
-      currentIndex = (currentIndex + 1) % images.length;
+      currentIndex = ((newIndex % images.length) + images.length) % images.length;
       const prevImg = images[prevIndex];
       const nextImg = images[currentIndex];
 
@@ -464,11 +465,22 @@ function initHero() {
       tl.set(prevImg, { zIndex: 0, scale: 1.05 });
     }
 
-    let interval = setInterval(switchImage, SLIDE_DURATION);
-    document.addEventListener('visibilitychange', () => {
+    function resetInterval() {
+      clearInterval(interval);
+      interval = setInterval(function() { goTo(currentIndex + 1); }, SLIDE_DURATION);
+    }
+
+    let interval = setInterval(function() { goTo(currentIndex + 1); }, SLIDE_DURATION);
+    document.addEventListener('visibilitychange', function() {
       if (document.hidden) clearInterval(interval);
-      else interval = setInterval(switchImage, SLIDE_DURATION);
+      else resetInterval();
     });
+
+    // Arrow buttons
+    var prevBtn = document.querySelector('.hero-prev');
+    var nextBtn = document.querySelector('.hero-next');
+    if (prevBtn) prevBtn.addEventListener('click', function() { goTo(currentIndex - 1); resetInterval(); });
+    if (nextBtn) nextBtn.addEventListener('click', function() { goTo(currentIndex + 1); resetInterval(); });
   }
 
   // Hero parallax on scroll
