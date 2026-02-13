@@ -252,34 +252,25 @@ body, html {
 }
 
 .scroll-indicator {
-  position: absolute; bottom: clamp(40px, 6vh, 80px); left: clamp(24px, 4vw, 60px);
+  position: absolute; bottom: clamp(20px, 3vh, 36px); left: 50%; transform: translateX(-50%);
   z-index: 5; display: flex; flex-direction: column;
-  align-items: center; gap: 10px; transition: opacity 0.5s ease;
-}
-.scroll-mouse {
-  width: 22px; height: 36px;
-  border: 1.5px solid rgba(194,164,126,0.4);
-  border-radius: 12px;
-  position: relative;
-  display: flex; justify-content: center;
-}
-.scroll-dot {
-  width: 3px; height: 8px;
-  background: var(--gold);
-  border-radius: 3px;
-  position: absolute; top: 7px;
-  animation: scrollDot 2s ease-in-out infinite;
+  align-items: center; gap: 6px; transition: opacity 0.5s ease;
 }
 .scroll-text {
   font-family: var(--font-heading);
   font-size: 0.55rem; font-weight: 500;
   letter-spacing: 0.25em; text-transform: uppercase;
-  color: rgba(194,164,126,0.5);
+  color: rgba(194,164,126,0.45);
 }
-@keyframes scrollDot {
-  0% { opacity: 1; top: 7px; }
-  50% { opacity: 0.3; top: 20px; }
-  100% { opacity: 1; top: 7px; }
+.scroll-chevrons {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  color: rgba(194,164,126,0.45);
+  animation: chevronBounce 2s ease-in-out infinite;
+}
+.scroll-chevrons svg:nth-child(2) { opacity: 0.35; }
+@keyframes chevronBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
 }
 body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 
