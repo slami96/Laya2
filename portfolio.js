@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════
-//  LAYA HOME — Portfolio V2
+//  LAYA HOME — Portfolio V3 Editorial
 // ═══════════════════════════════════════
 
 gsap.registerPlugin(ScrollTrigger);
@@ -21,6 +21,7 @@ function initLenis() {
 function initHeader() {
   const header = document.getElementById('site-header');
   if (!header) return;
+  // portfolio page is always light — just toggle scrolled state
   window.addEventListener('scroll', () => {
     header.classList.toggle('header-scrolled', window.scrollY > 60);
   }, { passive: true });
@@ -47,160 +48,103 @@ function initMobileMenu() {
   });
 }
 
-// ═══ GRID STAGGER REVEAL ═══
-function initGridReveal() {
-  const cards = gsap.utils.toArray('.portfolio-card');
-  if (cards.length === 0) return;
+// ═══ HERO ANIMATION ═══
+function initHero() {
+  const label   = document.querySelector('.portfolio-hero .section-label');
+  const title   = document.querySelector('.portfolio-hero-title');
+  const sub     = document.querySelector('.portfolio-hero-sub');
 
-  // Batch reveal for performance
+  gsap.set([label, title, sub].filter(Boolean), { opacity: 0 });
+  gsap.set(title, { y: 28 });
+
+  const tl = gsap.timeline({ delay: 0.15 });
+  if (label) tl.to(label, { opacity: 1, x: 0, duration: 0.55, ease: 'power2.out' });
+  if (title) tl.to(title, { opacity: 1, y: 0,  duration: 0.85, ease: 'power3.out' }, '-=0.25');
+  if (sub)   tl.to(sub,   { opacity: 1,        duration: 0.55, ease: 'power2.out' }, '-=0.45');
+}
+
+// ═══ FILTER ═══
+function initFilter() {
+  const filterBtns = document.querySelectorAll('.proj-filter-btn');
+  const cards      = document.querySelectorAll('.proj-card');
+  if (!filterBtns.length || !cards.length) return;
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+
+      // Swap active button
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Sort into two buckets
+      const toShow = [];
+      const toHide = [];
+      cards.forEach(card => {
+        const matches = filter === 'all' || card.dataset.category === filter;
+        (matches ? toShow : toHide).push(card);
+      });
+
+      // Animate out non-matching, then hide with display:none
+      if (toHide.length) {
+        gsap.to(toHide, {
+          opacity: 0,
+          y: 16,
+          duration: 0.25,
+          ease: 'power2.in',
+          onComplete: () => {
+            toHide.forEach(c => {
+              c.classList.add('is-hidden');
+              gsap.set(c, { y: 0 });
+            });
+          }
+        });
+      }
+
+      // Reveal matching with stagger
+      toShow.forEach(c => c.classList.remove('is-hidden'));
+      gsap.fromTo(
+        toShow,
+        { opacity: 0, y: 28 },
+        { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out', stagger: 0.07, delay: 0.18 }
+      );
+    });
+  });
+}
+
+// ═══ SCROLL REVEAL ═══
+function initScrollReveal() {
+  const cards = document.querySelectorAll('.proj-card');
+  if (!cards.length) return;
+
   ScrollTrigger.batch(cards, {
     onEnter: (batch) => {
       gsap.to(batch, {
-        opacity: 1, y: 0,
-        duration: 0.8,
+        opacity: 1,
+        y: 0,
+        duration: 0.9,
         ease: 'power3.out',
-        stagger: 0.08,
+        stagger: 0.1,
         overwrite: true,
       });
     },
-    start: 'top 85%',
+    start: 'top 88%',
+    once: true,
   });
-}
-
-// ═══ MODAL ═══
-function initModal() {
-  const modal = document.querySelector('.portfolio-modal');
-  const modalImg = document.querySelector('.modal-image');
-  const modalTitle = document.querySelector('.modal-title');
-  const modalCurrent = document.querySelector('.modal-counter .current');
-  const modalTotal = document.querySelector('.modal-counter .total');
-  const closeBtn = document.querySelector('.modal-close');
-  const prevBtn = document.querySelector('.modal-prev');
-  const nextBtn = document.querySelector('.modal-next');
-
-  if (!modal || !modalImg) return;
-
-  const cards = gsap.utils.toArray('.portfolio-card');
-  let currentIndex = 0;
-  let isOpen = false;
-
-  if (modalTotal) modalTotal.textContent = String(cards.length).padStart(2, '0');
-
-  function openModal(index) {
-    currentIndex = index;
-    const card = cards[index];
-    const projectImg = card.dataset.projectImage;
-    const title = card.dataset.title;
-
-    modalImg.src = projectImg;
-    if (modalTitle) modalTitle.textContent = title;
-    if (modalCurrent) modalCurrent.textContent = String(index + 1).padStart(2, '0');
-
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    if (lenis) lenis.stop();
-    isOpen = true;
-
-    // GSAP entrance
-    gsap.fromTo(modalImg,
-      { opacity: 0, scale: 0.9 },
-      { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' }
-    );
-  }
-
-  function closeModal() {
-    gsap.to(modalImg, {
-      opacity: 0, scale: 0.95, duration: 0.3, ease: 'power2.in',
-      onComplete: () => {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        if (lenis) lenis.start();
-        isOpen = false;
-      }
-    });
-  }
-
-  function navigateTo(index) {
-    if (index < 0) index = cards.length - 1;
-    if (index >= cards.length) index = 0;
-
-    const direction = index > currentIndex ? 1 : -1;
-    const card = cards[index];
-    const nextSrc = card.dataset.projectImage;
-    const title = card.dataset.title;
-
-    // Preload
-    const preload = new Image();
-    preload.src = nextSrc;
-
-    // Animate out
-    gsap.to(modalImg, {
-      opacity: 0, x: -30 * direction, duration: 0.25, ease: 'power2.in',
-      onComplete: () => {
-        modalImg.src = nextSrc;
-        currentIndex = index;
-        if (modalTitle) modalTitle.textContent = title;
-        if (modalCurrent) modalCurrent.textContent = String(index + 1).padStart(2, '0');
-
-        // Animate in
-        gsap.fromTo(modalImg,
-          { opacity: 0, x: 30 * direction },
-          { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out' }
-        );
-      }
-    });
-  }
-
-  // Event listeners
-  cards.forEach((card, i) => {
-    const btn = card.querySelector('.portfolio-card-btn');
-    const clickTarget = btn || card;
-    clickTarget.addEventListener('click', (e) => {
-      e.preventDefault();
-      openModal(i);
-    });
-  });
-
-  if (closeBtn) closeBtn.addEventListener('click', closeModal);
-  if (prevBtn) prevBtn.addEventListener('click', () => navigateTo(currentIndex - 1));
-  if (nextBtn) nextBtn.addEventListener('click', () => navigateTo(currentIndex + 1));
-
-  // Click overlay to close
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  // Keyboard
-  document.addEventListener('keydown', (e) => {
-    if (!isOpen) return;
-    if (e.key === 'Escape') closeModal();
-    if (e.key === 'ArrowLeft') navigateTo(currentIndex - 1);
-    if (e.key === 'ArrowRight') navigateTo(currentIndex + 1);
-  });
-
-  // Touch swipe
-  let touchStartX = 0;
-  modal.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
-  modal.addEventListener('touchend', (e) => {
-    const diff = touchStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) {
-      navigateTo(diff > 0 ? currentIndex + 1 : currentIndex - 1);
-    }
-  }, { passive: true });
-}
-
-// ═══ HERO ANIMATION ═══
-function initHero() {
-  const title = document.querySelector('.portfolio-hero-title');
-  const sub = document.querySelector('.portfolio-hero-sub');
-  if (title) gsap.from(title, { opacity: 0, y: 30, duration: 0.8, ease: 'power2.out', delay: 0.2 });
-  if (sub) gsap.from(sub, { opacity: 0, y: 15, duration: 0.6, ease: 'power2.out', delay: 0.4 });
 }
 
 // ═══ FOOTER ═══
 function initFooter() {
   const year = document.getElementById('copyright-year');
   if (year) year.textContent = new Date().getFullYear();
+
+  const icons = gsap.utils.toArray('.site-footer .social-icons a');
+  if (icons.length) {
+    gsap.from(icons, {
+      scrollTrigger: { trigger: '.site-footer', start: 'top 90%' },
+      y: 14, opacity: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out'
+    });
+  }
 }
 
 // ═══ INIT ═══
@@ -209,8 +153,8 @@ window.addEventListener('load', () => {
   initHeader();
   initMobileMenu();
   initHero();
-  initGridReveal();
-  initModal();
+  initFilter();
+  initScrollReveal();
   initFooter();
 
   setTimeout(() => ScrollTrigger.refresh(), 300);
