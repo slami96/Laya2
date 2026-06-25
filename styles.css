@@ -158,10 +158,16 @@ body, html {
   background-color: var(--dark-1); color: var(--text-light);
   height: 100vh; min-height: 100vh; position: relative; overflow: hidden;
 }
-.hero-media { position: absolute; inset: 0; overflow: hidden; will-change: transform; }
+.hero-media { position: absolute; inset: 0; overflow: hidden; will-change: transform; z-index: 0; }
 .hero-video {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: center;
+  object-fit: cover; object-position: center; z-index: 2;
+}
+.hero-slideshow { position: absolute; inset: 0; z-index: 1; opacity: 0; }
+.hero-slide {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center; opacity: 0;
+  will-change: transform, opacity;
 }
 .hero-overlay {
   position: absolute; inset: 0;
@@ -291,78 +297,69 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 /* ═══════════════════════════
    SERVICES — VERTICAL GRID
    ═══════════════════════════ */
-.services-section {
-  position: relative; overflow: hidden;
-  background-color: var(--warm-white);
-  padding: clamp(70px, 9vw, 120px) 0;
+/* ═══════════════════════════
+   SERVICES — SPLIT (text left / wireframe right)
+   ═══════════════════════════ */
+.services-section { display: flex; align-items: stretch; min-height: 100vh; background-color: var(--warm-white); }
+.srv-left {
+  flex: 1 1 47%; display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(56px, 6vw, 110px) clamp(32px, 5vw, 84px);
 }
-.services-header {
-  position: relative; z-index: 2; text-align: center;
-  padding: 0 24px; margin-bottom: clamp(36px, 4vw, 52px);
+.srv-visual {
+  flex: 1 1 53%; position: relative; overflow: hidden;
+  background: var(--cream); border-left: 1px solid var(--border-light);
 }
+#house-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.services-header { text-align: left; margin-bottom: clamp(32px, 4vw, 52px); }
+.srv-left .section-label { justify-content: flex-start; }
 .services-heading {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 4.5vw, 56px);
-  font-weight: 300; line-height: 1.15; color: var(--text-dark);
+  font-family: var(--font-display); font-size: clamp(36px, 3.6vw, 60px);
+  font-weight: 300; line-height: 1.12; color: var(--text-dark);
 }
 .services-heading .accent { color: var(--gold); font-style: italic; }
 
-/* Stage holds the wireframe (cover) + the accordion (revealed after dissolve) */
-.srv-stage {
-  position: relative; width: 100%;
-  min-height: clamp(480px, 64vh, 720px);
-  display: flex; align-items: center; justify-content: center;
-}
-#house-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  z-index: 1; pointer-events: none;
-}
-.srv-accordion {
-  position: relative; z-index: 2; width: 100%; max-width: 820px; margin: 0 auto;
-  padding: 0 clamp(24px, 5vw, 60px);
-  display: flex; flex-direction: column;
-  opacity: 0; transform: translateY(24px);
-  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
-}
-.srv-accordion.revealed { opacity: 1; transform: none; }
+/* Accordion — bigger / more readable */
+.srv-accordion { display: flex; flex-direction: column; }
 .srv-item { border-bottom: 1px solid var(--border-light); }
 .srv-item:first-child { border-top: 1px solid var(--border-light); }
 .srv-head {
   width: 100%; background: none; border: none; cursor: pointer; text-align: left;
-  display: flex; align-items: center; gap: 20px; padding: 26px 4px; font-family: inherit;
+  display: flex; align-items: flex-start; gap: 24px; padding: 30px 4px; font-family: inherit;
 }
 .srv-num {
-  font-family: var(--font-display); font-size: 1rem; font-weight: 400; color: var(--gold);
-  letter-spacing: 0.1em; flex-shrink: 0; width: 28px; opacity: 0.7; transition: opacity 0.4s var(--ease);
+  font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; color: var(--gold);
+  letter-spacing: 0.08em; flex-shrink: 0; width: 34px; opacity: 0.65; padding-top: 6px;
+  transition: opacity 0.4s var(--ease);
 }
 .srv-titles { flex: 1; }
 .srv-title {
-  font-family: var(--font-display); font-size: clamp(1.25rem, 2vw, 1.7rem);
-  font-weight: 400; color: var(--text-dark); line-height: 1.2; transition: color 0.4s var(--ease);
+  font-family: var(--font-display); font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+  font-weight: 400; color: var(--text-dark); line-height: 1.15; transition: color 0.4s var(--ease);
 }
 .srv-benefit {
-  font-family: var(--font-body); font-size: 0.82rem; font-weight: 300;
-  color: var(--text-muted-dark); margin-top: 5px;
+  font-family: var(--font-body); font-size: 0.92rem; font-weight: 300;
+  color: var(--text-muted-dark); margin-top: 8px;
 }
-.srv-icon { flex-shrink: 0; width: 22px; height: 22px; position: relative; }
+.srv-icon { flex-shrink: 0; width: 26px; height: 26px; position: relative; margin-top: 8px; }
 .srv-icon::before, .srv-icon::after {
   content: ''; position: absolute; background: var(--gold);
   top: 50%; left: 50%; transform: translate(-50%, -50%);
 }
-.srv-icon::before { width: 14px; height: 1.5px; }
-.srv-icon::after { width: 1.5px; height: 14px; transition: transform 0.5s var(--ease); }
+.srv-icon::before { width: 16px; height: 1.5px; }
+.srv-icon::after { width: 1.5px; height: 16px; transition: transform 0.5s var(--ease); }
 .srv-item.open .srv-icon::after { transform: translate(-50%, -50%) scaleY(0); }
 .srv-item.open .srv-num { opacity: 1; }
 .srv-item.open .srv-title { color: var(--gold); }
 .srv-body { overflow: hidden; max-height: 0; transition: max-height 0.55s var(--ease); }
 .srv-body-inner {
-  padding: 0 4px 28px 52px; font-family: var(--font-body); font-size: 0.9rem;
-  line-height: 1.8; font-weight: 300; color: var(--text-muted-dark);
+  padding: 0 4px 30px 58px; font-family: var(--font-body); font-size: 0.98rem;
+  line-height: 1.85; font-weight: 300; color: var(--text-muted-dark);
 }
-.srv-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.srv-tags { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
 .srv-tag {
   font-family: var(--font-heading); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--gold); border: 1px solid var(--gold-dim); border-radius: 40px; padding: 6px 14px;
+  color: var(--gold); border: 1px solid var(--gold-dim); border-radius: 40px; padding: 7px 15px;
 }
 
 /* ═══════════════════════════
@@ -653,8 +650,10 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   .contact-inner { grid-template-columns: 1fr; gap: 48px; text-align: center; }
   .contact-subtext { margin: 0 auto; }
   .contact-form .form-submit-wrapper { text-align: center; }
-  .srv-body-inner { padding-left: 32px; }
-  .srv-head { gap: 14px; }
+  .services-section { flex-direction: column; }
+  .srv-visual { flex: none; min-height: 56vh; order: 2; border-left: none; border-top: 1px solid var(--border-light); }
+  .srv-left { flex: none; padding: clamp(48px, 8vw, 72px) clamp(24px, 6vw, 48px); }
+  .srv-body-inner { padding-left: 44px; }
   .proj-grid-home { grid-template-columns: repeat(2, 1fr); }
   .proj-tile-feature { grid-column: span 2; grid-row: auto; aspect-ratio: 16 / 10; }
   .project-modal-prev { left: 12px; }
