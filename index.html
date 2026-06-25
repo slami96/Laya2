@@ -115,8 +115,7 @@
       <div class="about-text-col">
         <div class="section-label">O mně</div>
         <h2 class="about-heading">
-          Váš prostor,<br>
-          náš <span class="accent">příběh</span>
+          Váš prostor, náš <span class="accent">příběh</span>
         </h2>
         <div class="about-text">
           <p>„Každý domov vypráví svůj jedinečný příběh. Pod značkou LAYA HOME pomáhám vytvářet domovy, které nejsou jen esteticky působivé a funkční, ale především odrážejí osobnost a životní styl svých majitelů. Ať už jde o rekonstrukci starého venkovského stavení, návrh rodinného domu nebo proměnu interiéru, vždy hledám harmonii mezi tradicí, estetikou a současnými potřebami.</p>
@@ -208,7 +207,14 @@
     </div>
 
     <div class="srv-visual" id="srv-visual">
-      <canvas id="house-canvas"></canvas>
+      <!-- BEFORE / AFTER — PLACEHOLDER images: replace the two src's with your real before/after pair. -->
+      <div class="ba-slider srv-ba">
+        <img class="ba-img ba-after"  src="interior_5.jpg" alt="Po realizaci" draggable="false">
+        <img class="ba-img ba-before" src="interior_4.jpg" alt="Před realizací" draggable="false">
+        <span class="ba-label ba-label-before">Před</span>
+        <span class="ba-label ba-label-after">Po</span>
+        <div class="ba-handle" aria-hidden="true"><span class="ba-handle-line"></span><span class="ba-handle-grip">⟷</span></div>
+      </div>
     </div>
   </section>
 
