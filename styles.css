@@ -307,7 +307,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 }
 .srv-visual {
   flex: 1 1 53%; position: relative; overflow: hidden;
-  background: var(--cream); border-left: 1px solid var(--border-light);
+  background: var(--warm-white);
 }
 #house-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
@@ -651,7 +651,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   .contact-subtext { margin: 0 auto; }
   .contact-form .form-submit-wrapper { text-align: center; }
   .services-section { flex-direction: column; }
-  .srv-visual { flex: none; min-height: 56vh; order: 2; border-left: none; border-top: 1px solid var(--border-light); }
+  .srv-visual { flex: none; min-height: 56vh; order: 2; }
   .srv-left { flex: none; padding: clamp(48px, 8vw, 72px) clamp(24px, 6vw, 48px); }
   .srv-body-inner { padding-left: 44px; }
   .proj-grid-home { grid-template-columns: repeat(2, 1fr); }
