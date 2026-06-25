@@ -30,13 +30,7 @@ function initLenis() {
 //  Time-based animation, triggered on scroll
 // ═══════════════════════════════════════
 function initServices() {
-  const section = document.querySelector('.services-section');
-  const stage = document.getElementById('srv-stage');
-  const canvas = document.getElementById('house-canvas');
-  const accordion = document.getElementById('srv-accordion');
-  if (!section || !accordion) return;
-
-  // ───── Accordion (one open at a time) ─────
+  // ───── Accordion (always visible, one open at a time) ─────
   const items = gsap.utils.toArray('.srv-item');
   function setBody(item) {
     const b = item.querySelector('.srv-body');
@@ -54,39 +48,38 @@ function initServices() {
   requestAnimationFrame(function () { items.forEach(setBody); });
   window.addEventListener('resize', function () { items.forEach(setBody); });
 
-  // Reduced motion or missing canvas → just show the services, no animation.
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!canvas || !stage || reduce) { accordion.classList.add('revealed'); return; }
-
-  // ───── Wireframe room: covers the stage, plays once, dissolves, reveals services ─────
+  // ───── House wireframe on the right panel: bigger, bolder, repeating ─────
+  const section = document.querySelector('.services-section');
+  const panel = document.getElementById('srv-visual');
+  const canvas = document.getElementById('house-canvas');
+  if (!section || !panel || !canvas) return;
   const ctx = canvas.getContext('2d');
-  if (!ctx) { accordion.classList.add('revealed'); return; }
-
+  if (!ctx) return;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   let W, H, running = false, played = false;
 
   function resize() {
-    W = stage.offsetWidth; H = stage.offsetHeight;
+    W = panel.clientWidth; H = panel.clientHeight;
     canvas.width = W * dpr; canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     recalcIso();
   }
-
   const COS30 = Math.cos(Math.PI / 6), SIN30 = 0.5;
   let isoScale, isoOffX, isoOffY;
   const RW = 7, RD = 5.5, RH = 3.8;
   function recalcIso() {
     if (!W || !H) return;
-    isoScale = Math.min(W, H) * 0.058;
+    isoScale = Math.min(W, H) * 0.066;
     isoOffX = W * 0.5 - (RW / 2 - RD / 2) * COS30 * isoScale;
-    isoOffY = H * 0.5 - ((RW / 2 + RD / 2) * SIN30 - RH / 2) * isoScale - H * 0.10;
+    isoOffY = H * 0.5 - ((RW / 2 + RD / 2) * SIN30 - RH / 2) * isoScale - H * 0.06;
   }
   function iso(x, y, z) { return { x: (x - y) * COS30 * isoScale + isoOffX, y: ((x + y) * SIN30 - z) * isoScale + isoOffY }; }
 
   const S = { grid:0, floor:0, wallL:0, wallR:0, ceiling:0, window:0, door:0, table:0, chair:0, shelf:0, lamp:0, plant:0, picture:0, rug:0, dims:0, glow:0, particles:0, fadeOut:0 };
-  function ink(a) { return 'rgba(35,30,25,' + (a * (1 - S.fadeOut)) + ')'; }
+  function ink(a) { return 'rgba(35,30,25,' + (Math.min(1, a * 1.18) * (1 - S.fadeOut)) + ')'; }
   function penTip(p, prog) { if (prog <= 0 || prog >= 1) return; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fillStyle = ink(0.6); ctx.fill(); ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, Math.PI * 2); ctx.fillStyle = ink(0.12); ctx.fill(); }
-  function ln(ax, ay, az, bx, by, bz, prog, lw, alpha) { if (prog <= 0) return; var p = Math.min(prog, 1); var a = iso(ax, ay, az), b = iso(bx, by, bz); var ex = a.x + (b.x - a.x) * p, ey = a.y + (b.y - a.y) * p; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(ex, ey); ctx.strokeStyle = ink(alpha != null ? alpha : 0.8); ctx.lineWidth = lw || 1.2; ctx.stroke(); penTip({ x: ex, y: ey }, prog); }
+  function ln(ax, ay, az, bx, by, bz, prog, lw, alpha) { if (prog <= 0) return; var p = Math.min(prog, 1); var a = iso(ax, ay, az), b = iso(bx, by, bz); var ex = a.x + (b.x - a.x) * p, ey = a.y + (b.y - a.y) * p; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(ex, ey); ctx.strokeStyle = ink(alpha != null ? alpha : 0.8); ctx.lineWidth = (lw || 1.2) * 1.3; ctx.stroke(); penTip({ x: ex, y: ey }, prog); }
   function lnSeq(arr, prog, lw, alpha) { if (prog <= 0) return; var n = arr.length; for (var i = 0; i < n; i++) { var seg = Math.max(0, Math.min(1, (prog - i / n) / (1 / n))); var l = arr[i]; ln(l[0], l[1], l[2], l[3], l[4], l[5], seg, lw, alpha); } }
   function dashed(ax, ay, az, bx, by, bz, prog, alpha) { if (prog <= 0) return; var p = Math.min(prog, 1); var a = iso(ax, ay, az), b = iso(bx, by, bz); ctx.save(); ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(a.x + (b.x - a.x) * p, a.y + (b.y - a.y) * p); ctx.strokeStyle = ink(alpha || 0.25); ctx.lineWidth = 0.6; ctx.stroke(); ctx.restore(); }
   function cross(x, y, z, prog) { if (prog <= 0) return; var s = 4 * Math.min(prog, 1), c = iso(x, y, z); ctx.beginPath(); ctx.moveTo(c.x - s, c.y); ctx.lineTo(c.x + s, c.y); ctx.moveTo(c.x, c.y - s); ctx.lineTo(c.x, c.y + s); ctx.strokeStyle = ink(0.35 * Math.min(prog, 1)); ctx.lineWidth = 0.6; ctx.stroke(); }
@@ -117,9 +110,13 @@ function initServices() {
   resize();
   window.addEventListener('resize', resize);
 
+  function play() { for (var k in S) S[k] = 0; running = true; requestAnimationFrame(render); tl.play(0); }
+
   var tl = gsap.timeline({ paused: true, onComplete: function () {
-    accordion.classList.add('revealed');
-    gsap.to(S, { fadeOut: 1, duration: 1.1, ease: 'power2.inOut', onComplete: function () { running = false; ctx.clearRect(0, 0, W, H); } });
+    if (reduce) return;                         // reduced motion: draw once, hold
+    gsap.delayedCall(3, function () {           // hold, then dissolve and redraw (loop)
+      gsap.to(S, { fadeOut: 1, duration: 1.0, ease: 'power2.in', onComplete: function () { play(); } });
+    });
   }});
   tl.to(S, { grid: 1, duration: 0.8, ease: 'power2.out' }, 0);
   tl.to(S, { particles: 0.5, duration: 1, ease: 'power1.in' }, 0);
@@ -142,15 +139,12 @@ function initServices() {
 
   ScrollTrigger.create({
     trigger: section,
-    start: 'top 70%',
+    start: 'top 65%',
     onEnter: function () {
       if (played) return;
       played = true;
       resize();
-      for (var k in S) S[k] = 0;
-      running = true;
-      requestAnimationFrame(render);
-      tl.play(0);
+      play();
     }
   });
 }
@@ -256,28 +250,58 @@ function initHero() {
   if (!heroSection) return;
 
   const video = document.querySelector('.hero-video');
+  const slideshow = document.getElementById('hero-slideshow');
+  const slides = gsap.utils.toArray('.hero-slide');
   const btnWrap = document.querySelector('.hero-btn-wrap');
   const lineInners = gsap.utils.toArray('.hero-title .line-inner');
 
-  // Intro: split-text line reveal + button
+  // Intro: split-text reveal + button
   const introTl = gsap.timeline({ delay: 0.3 });
-  lineInners.forEach((inner, i) => {
-    introTl.to(inner, { y: 0, duration: 1.1, ease: 'power3.out' }, 0.12 * i);
-  });
+  lineInners.forEach((inner, i) => introTl.to(inner, { y: 0, duration: 1.1, ease: 'power3.out' }, 0.12 * i));
   if (btnWrap) introTl.to(btnWrap, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.7);
 
-  // Video: play once, hold on the final (furnished) frame.
-  if (video) {
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const saveData = navigator.connection && navigator.connection.saveData;
-    if (reduce || saveData) {
-      video.removeAttribute('autoplay');
-      try { video.pause(); } catch (e) {}   // keep the poster frame
+  // Looping interior slideshow (Ken Burns) — same timing as the original hero
+  let slideStarted = false;
+  function startSlideshow() {
+    if (slideStarted || !slides.length) return;
+    slideStarted = true;
+    gsap.set(slides, { opacity: 0, scale: 1.05 });
+    gsap.set(slides[0], { opacity: 1, scale: 1 });
+    gsap.to(slides[0], { scale: 1.08, duration: 5, ease: 'none' });
+    let idx = 0;
+    setInterval(() => {
+      const prev = slides[idx];
+      idx = (idx + 1) % slides.length;
+      const next = slides[idx];
+      gsap.set(next, { opacity: 0, scale: 1 });
+      gsap.to(next, { opacity: 1, duration: 1.2, ease: 'power2.inOut' });
+      gsap.to(prev, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
+      gsap.to(next, { scale: 1.08, duration: 5, ease: 'none' });
+      gsap.delayedCall(1.2, () => gsap.set(prev, { scale: 1.05 }));
+    }, 3000);
+  }
+  function dissolveToSlideshow() {
+    if (slideshow) gsap.to(slideshow, { opacity: 1, duration: 1.2, ease: 'power2.inOut' });
+    if (video) gsap.to(video, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
+    startSlideshow();
+  }
+
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = navigator.connection && navigator.connection.saveData;
+
+  if (!video || reduce || saveData) {
+    // No video: show the slideshow straight away
+    if (slideshow) gsap.set(slideshow, { opacity: 1 });
+    if (video) video.style.display = 'none';
+    if (reduce) {
+      if (slides[0]) gsap.set(slides[0], { opacity: 1, scale: 1 });   // static, no motion
     } else {
-      const p = video.play();
-      if (p && p.catch) p.catch(() => {});   // autoplay blocked -> poster stays
-      video.addEventListener('ended', () => { try { video.pause(); } catch (e) {} });
+      startSlideshow();
     }
+  } else {
+    const p = video.play();
+    if (p && p.catch) p.catch(() => dissolveToSlideshow());   // autoplay blocked -> slideshow
+    video.addEventListener('ended', dissolveToSlideshow);     // video done -> dissolve into slideshow
   }
 
   // Subtle parallax on the media block
