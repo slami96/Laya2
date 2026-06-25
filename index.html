@@ -64,14 +64,12 @@
        HERO — SPLIT TEXT + PARALLAX
        ═══════════════════════════════ -->
   <section class="hero-section" id="hero" data-theme="dark">
-    <div class="hero-image-stack">
-      <img src="interior_1.jpg" alt="Interior 1" class="hero-image hero-image-active">
-      <img src="interior_3.jpg" alt="Interior 3" class="hero-image">
-      <img src="interior_4.jpg" alt="Interior 4" class="hero-image">
-      <img src="interior_7.jpg" alt="Interior 7" class="hero-image">
-      <img src="interior_2.jpg" alt="Interior 2" class="hero-image">
-      <img src="interior_5.jpg" alt="Interior 5" class="hero-image">
-      <img src="interior_6.jpg" alt="Interior 6" class="hero-image">
+    <div class="hero-media">
+      <!-- Plays once and holds on the final (furnished) frame. Poster shows instantly while the video loads. -->
+      <video class="hero-video" autoplay muted playsinline preload="auto" poster="interior_1.jpg">
+        <source src="hero.mp4" type="video/mp4">
+        <!-- Optional: add a smaller modern encoding if you generate it -> <source src="hero.webm" type="video/webm"> -->
+      </video>
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-vignette"></div>
@@ -89,14 +87,6 @@
           <span class="btn-arrow">→</span>
         </a>
       </div>
-    </div>
-
-    <div class="hero-counter">
-      <button class="hero-arrow hero-prev" aria-label="Previous image">‹</button>
-      <span class="current">01</span>
-      <div class="hero-counter-line"></div>
-      <span class="total">07</span>
-      <button class="hero-arrow hero-next" aria-label="Next image">›</button>
     </div>
 
     <div class="scroll-indicator">
@@ -135,7 +125,7 @@
   </section>
 
   <!-- ═══════════════════════════════
-       SERVICES — HORIZONTAL SCROLL
+       SERVICES — ACCORDION + WIREFRAME REVEAL
        ═══════════════════════════════ -->
   <section class="services-section" id="services" data-theme="light">
     <div class="services-header">
@@ -145,24 +135,68 @@
       </h2>
     </div>
 
-    <div class="services-grid">
-      <div class="srv-card">
-        <div class="srv-card-number">01</div>
-        <div class="srv-card-line"></div>
-        <h3 class="srv-card-title">Design interiéru</h3>
-        <p class="srv-card-desc">Pomohu Vám vytvořit prostor, který bude nejen krásný, ale i praktický a přizpůsobený Vašemu životnímu stylu. Ať už plánujete nový domov, nebo proměnu stávajícího bytu či kanceláře, provedu Vás celým procesem od prvotních představ až po finální realizaci.</p>
-      </div>
-      <div class="srv-card">
-        <div class="srv-card-number">02</div>
-        <div class="srv-card-line"></div>
-        <h3 class="srv-card-title">Architektonické návrhy a rekonstrukce</h3>
-        <p class="srv-card-desc">Navrhuji rodinné domy, rekreační objekty i jiné menší stavby s ohledem na okolní prostředí a Vaše potřeby. Můj přístup spojuje moderní design s respektem k místu a přírodě, aby výsledný projekt ladil s prostředím i Vaším životem.</p>
-      </div>
-      <div class="srv-card">
-        <div class="srv-card-number">03</div>
-        <div class="srv-card-line"></div>
-        <h3 class="srv-card-title">Konzultace na míru</h3>
-        <p class="srv-card-desc">Není vždy nutné hned začít s celým projektem. Pokud řešíte koupi nemovitosti, plánujete rekonstrukci, nebo si jen nejste jistí svými představami, ráda Vám poskytnu odborný názor a doporučení – osobně, telefonicky nebo přes videohovor.</p>
+    <div class="srv-stage" id="srv-stage">
+      <canvas id="house-canvas"></canvas>
+
+      <div class="srv-accordion" id="srv-accordion">
+
+        <div class="srv-item open">
+          <button class="srv-head" type="button">
+            <span class="srv-num">01</span>
+            <span class="srv-titles">
+              <span class="srv-title">Design interiéru</span>
+              <span class="srv-benefit">Prostor, který je krásný i praktický — na míru vašemu životu.</span>
+            </span>
+            <span class="srv-icon"></span>
+          </button>
+          <div class="srv-body"><div class="srv-body-inner">
+            Pomohu Vám vytvořit prostor, který bude nejen krásný, ale i praktický a přizpůsobený Vašemu životnímu stylu. Ať už plánujete nový domov, nebo proměnu stávajícího bytu či kanceláře, provedu Vás celým procesem od prvotních představ až po finální realizaci.
+            <div class="srv-tags">
+              <span class="srv-tag">Návrh dispozic</span>
+              <span class="srv-tag">Materiály &amp; barvy</span>
+              <span class="srv-tag">3D vizualizace</span>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="srv-item">
+          <button class="srv-head" type="button">
+            <span class="srv-num">02</span>
+            <span class="srv-titles">
+              <span class="srv-title">Architektonické návrhy a rekonstrukce</span>
+              <span class="srv-benefit">Stavby a rekonstrukce v souladu s místem i přírodou.</span>
+            </span>
+            <span class="srv-icon"></span>
+          </button>
+          <div class="srv-body"><div class="srv-body-inner">
+            Navrhuji rodinné domy, rekreační objekty i jiné menší stavby s ohledem na okolní prostředí a Vaše potřeby. Můj přístup spojuje moderní design s respektem k místu a přírodě, aby výsledný projekt ladil s prostředím i Vaším životem.
+            <div class="srv-tags">
+              <span class="srv-tag">Rodinné domy</span>
+              <span class="srv-tag">Rekonstrukce</span>
+              <span class="srv-tag">Studie</span>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="srv-item">
+          <button class="srv-head" type="button">
+            <span class="srv-num">03</span>
+            <span class="srv-titles">
+              <span class="srv-title">Konzultace na míru</span>
+              <span class="srv-benefit">Odborný názor, když nepotřebujete celý projekt.</span>
+            </span>
+            <span class="srv-icon"></span>
+          </button>
+          <div class="srv-body"><div class="srv-body-inner">
+            Není vždy nutné hned začít s celým projektem. Pokud řešíte koupi nemovitosti, plánujete rekonstrukci, nebo si jen nejste jistí svými představami, ráda Vám poskytnu odborný názor a doporučení — osobně, telefonicky nebo přes videohovor.
+            <div class="srv-tags">
+              <span class="srv-tag">Osobně</span>
+              <span class="srv-tag">Videohovor</span>
+              <span class="srv-tag">Hodinově</span>
+            </div>
+          </div></div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -171,9 +205,6 @@
        PROCESS — STACKING CARDS
        ═══════════════════════════════ -->
   <section class="process-section" data-theme="light">
-    <!-- Wireframe Room — absolute background canvas -->
-    <canvas class="process-canvas" id="process-canvas"></canvas>
-
     <div class="process-header">
       <div class="section-label" style="justify-content:center;">Jak pracujeme</div>
       <h2 class="process-heading">
@@ -181,95 +212,127 @@
       </h2>
     </div>
 
-    <div class="stacking-cards">
-      <div class="stack-card">
-        <div class="stack-card-number">01</div>
-        <div class="stack-card-content">
-          <h3 class="stack-card-title">Setkání a zaměření</h3>
-          <p class="stack-card-text">Na začátku si domluvíme schůzku, nejlépe přímo v objektu nebo místě, kterému se budeme věnovat. Daný prostor si zaměřím, nebo pokud máte k prostoru projekt od architekta, zaměření nebude potřeba a vše si z projektu vyčtu. Osobní návštěva mi pomáhá lépe porozumět charakteru místa – jak prostoru samotnému, tak jeho vztahům s okolím.</p>
+    <div class="timeline">
+      <div class="timeline-line"><div class="timeline-line-fill"></div></div>
+
+      <div class="timeline-step">
+        <div class="timeline-node">01</div>
+        <div class="timeline-content">
+          <h3 class="timeline-title">Setkání a zaměření</h3>
+          <p class="timeline-text">Na začátku si domluvíme schůzku, nejlépe přímo v objektu nebo místě, kterému se budeme věnovat. Daný prostor si zaměřím, nebo pokud máte k prostoru projekt od architekta, zaměření nebude potřeba a vše si z projektu vyčtu. Osobní návštěva mi pomáhá lépe porozumět charakteru místa – jak prostoru samotnému, tak jeho vztahům s okolím.</p>
         </div>
       </div>
 
-      <div class="stack-card">
-        <div class="stack-card-number">02</div>
-        <div class="stack-card-content">
-          <h3 class="stack-card-title">Návrh a vizualizace</h3>
-          <p class="stack-card-text">Nejprve se zaměřím na funkční uspořádání jednotlivých zón a promyšlení celkového půdorysného řešení. Současně začínám pracovat s prvotní představou o použitých materiálech, barvách a atmosféře prostoru. Návrh s Vámi průběžně konzultuji – společně ladíme rozvržení místností, logiku pohybu v prostoru i základní materiálovou paletu.</p>
+      <div class="timeline-step">
+        <div class="timeline-node">02</div>
+        <div class="timeline-content">
+          <h3 class="timeline-title">Návrh a vizualizace</h3>
+          <p class="timeline-text">Nejprve se zaměřím na funkční uspořádání jednotlivých zón a promyšlení celkového půdorysného řešení. Současně začínám pracovat s prvotní představou o použitých materiálech, barvách a atmosféře prostoru. Návrh s Vámi průběžně konzultuji – společně ladíme rozvržení místností, logiku pohybu v prostoru i základní materiálovou paletu.</p>
         </div>
       </div>
 
-      <div class="stack-card">
-        <div class="stack-card-number">03</div>
-        <div class="stack-card-content">
-          <h3 class="stack-card-title">Dokumentace</h3>
-          <p class="stack-card-text">Ve chvíli, kdy budete s návrhem spokojeni, připravím kompletní dokumentaci potřebnou k jeho realizaci. Získáte ode mě přehledné a detailní podklady, které usnadní komunikaci s řemeslníky a plynulé zahájení prací.</p>
+      <div class="timeline-step">
+        <div class="timeline-node">03</div>
+        <div class="timeline-content">
+          <h3 class="timeline-title">Dokumentace</h3>
+          <p class="timeline-text">Ve chvíli, kdy budete s návrhem spokojeni, připravím kompletní dokumentaci potřebnou k jeho realizaci. Získáte ode mě přehledné a detailní podklady, které usnadní komunikaci s řemeslníky a plynulé zahájení prací.</p>
         </div>
       </div>
 
-      <div class="stack-card">
-        <div class="stack-card-number">04</div>
-        <div class="stack-card-content">
-          <h3 class="stack-card-title">Realizace</h3>
-          <p class="stack-card-text">Dobře promyšlený návrh je základem interiéru, který Vám bude sloužit spolehlivě a s radostí po mnoho let. Ráda Vám doporučím prověřené dodavatele, výrobce nábytku i šikovné řemeslníky. Během realizace se domluvíme na pravidelných návštěvách stavby, abych mohla osobně ohlídat správné provedení a kvalitu práce.</p>
+      <div class="timeline-step">
+        <div class="timeline-node">04</div>
+        <div class="timeline-content">
+          <h3 class="timeline-title">Realizace</h3>
+          <p class="timeline-text">Dobře promyšlený návrh je základem interiéru, který Vám bude sloužit spolehlivě a s radostí po mnoho let. Ráda Vám doporučím prověřené dodavatele, výrobce nábytku i šikovné řemeslníky. Během realizace se domluvíme na pravidelných návštěvách stavby, abych mohla osobně ohlídat správné provedení a kvalitu práce.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════
-       SHOWCASE — PINNED PORTFOLIO
+       PROJECTS — BEFORE/AFTER + GRID
        ═══════════════════════════════ -->
-  <section class="showcase-section" data-theme="dark">
-    <div class="showcase-trigger">
-      <div class="showcase-sticky">
+  <section class="projects-section" id="projekty" data-theme="light">
+    <div class="projects-header">
+      <div class="section-label" style="justify-content:center;">Vybrané projekty</div>
+      <h2 class="projects-heading">Naše <span class="accent">realizace</span></h2>
+    </div>
 
-        <div class="showcase-image-side">
-          <img src="nahled_1.jpg" alt="Hasičská Zbrojnice" class="showcase-image active">
-          <img src="nahled_5.jpg" alt="Interiér bytu" class="showcase-image">
-          <img src="nahled_9.jpg" alt="Kuchyně" class="showcase-image">
-          <img src="nahled_13.jpg" alt="Obývací pokoj" class="showcase-image">
-          <img src="nahled_17.jpg" alt="Dětský pokoj" class="showcase-image">
-          <img src="nahled_21.jpg" alt="Rekonstrukce domu" class="showcase-image">
-          <div class="showcase-image-overlay"></div>
-        </div>
-
-        <div class="showcase-list-side">
-          <div class="showcase-label">Vybrané projekty</div>
-
-          <div class="showcase-item active" data-index="0" data-project="project_1.jpg" data-title="Hasičská Zbrojnice">
-            <div class="showcase-item-title">Hasičská Zbrojnice</div>
-            <div class="showcase-item-sub">Architektura</div>
-          </div>
-          <div class="showcase-item" data-index="1" data-project="project_5.jpg" data-title="Interiér Bytu Praha">
-            <div class="showcase-item-title">Interiér Bytu Praha</div>
-            <div class="showcase-item-sub">Interiérový design</div>
-          </div>
-          <div class="showcase-item" data-index="2" data-project="project_9.jpg" data-title="Moderní Kuchyně">
-            <div class="showcase-item-title">Moderní Kuchyně</div>
-            <div class="showcase-item-sub">Design kuchyně</div>
-          </div>
-          <div class="showcase-item" data-index="3" data-project="project_13.jpg" data-title="Obývací Pokoj">
-            <div class="showcase-item-title">Obývací Pokoj</div>
-            <div class="showcase-item-sub">Interiérový design</div>
-          </div>
-          <div class="showcase-item" data-index="4" data-project="project_17.jpg" data-title="Dětský Pokoj">
-            <div class="showcase-item-title">Dětský Pokoj</div>
-            <div class="showcase-item-sub">Interiérový design</div>
-          </div>
-          <div class="showcase-item" data-index="5" data-project="project_21.jpg" data-title="Rekonstrukce RD">
-            <div class="showcase-item-title">Rekonstrukce RD</div>
-            <div class="showcase-item-sub">Rekonstrukce</div>
-          </div>
-
-          <div class="showcase-cta">
-            <a href="portfolio.html" class="showcase-btn">
-              <span>Všechny projekty</span>
-              <span class="btn-arrow">→</span>
-            </a>
-          </div>
-        </div>
-
+    <!-- BEFORE / AFTER — drag the handle. PLACEHOLDER images: replace the two src's with your real before/after pair. -->
+    <div class="ba-block">
+      <div class="ba-slider" id="ba-slider">
+        <img class="ba-img ba-after"  src="interior_6.jpg" alt="Po realizaci" draggable="false">
+        <img class="ba-img ba-before" src="interior_2.jpg" alt="Před realizací" draggable="false">
+        <span class="ba-label ba-label-before">Před</span>
+        <span class="ba-label ba-label-after">Po</span>
+        <div class="ba-handle" aria-hidden="true"><span class="ba-handle-line"></span><span class="ba-handle-grip">⟷</span></div>
       </div>
+      <p class="ba-caption">Z holého prostoru k hotovému interiéru — táhněte posuvníkem.</p>
+    </div>
+
+    <!-- GRID -->
+    <div class="proj-grid-home">
+
+      <article class="proj-tile proj-tile-feature" data-index="0" data-project="project_1.jpg" data-title="Hasičská Zbrojnice">
+        <div class="proj-tile-img"><img src="nahled_1.jpg" alt="Hasičská Zbrojnice" loading="lazy"></div>
+        <div class="proj-tile-body">
+          <span class="proj-tile-cat">Architektura</span>
+          <h3 class="proj-tile-title">Hasičská Zbrojnice</h3>
+        </div>
+        <span class="proj-tile-plus" aria-hidden="true">+</span>
+      </article>
+
+      <article class="proj-tile" data-index="1" data-project="project_2.jpg" data-title="Rekonstrukce RD Brno">
+        <div class="proj-tile-img"><img src="nahled_2.jpg" alt="Rekonstrukce RD Brno" loading="lazy"></div>
+        <div class="proj-tile-body">
+          <span class="proj-tile-cat">Rekonstrukce</span>
+          <h3 class="proj-tile-title">Rekonstrukce RD Brno</h3>
+        </div>
+        <span class="proj-tile-plus" aria-hidden="true">+</span>
+      </article>
+
+      <article class="proj-tile" data-index="2" data-project="project_3.jpg" data-title="Interiér Bytu">
+        <div class="proj-tile-img"><img src="nahled_3.jpg" alt="Interiér Bytu" loading="lazy"></div>
+        <div class="proj-tile-body">
+          <span class="proj-tile-cat">Interiér</span>
+          <h3 class="proj-tile-title">Interiér Bytu</h3>
+        </div>
+        <span class="proj-tile-plus" aria-hidden="true">+</span>
+      </article>
+
+      <article class="proj-tile" data-index="3" data-project="project_4.jpg" data-title="Kancelářské Prostory">
+        <div class="proj-tile-img"><img src="nahled_4.jpg" alt="Kancelářské Prostory" loading="lazy"></div>
+        <div class="proj-tile-body">
+          <span class="proj-tile-cat">Komerční</span>
+          <h3 class="proj-tile-title">Kancelářské Prostory</h3>
+        </div>
+        <span class="proj-tile-plus" aria-hidden="true">+</span>
+      </article>
+
+      <article class="proj-tile" data-index="4" data-project="project_5.jpg" data-title="Moderní Vila">
+        <div class="proj-tile-img"><img src="nahled_5.jpg" alt="Moderní Vila" loading="lazy"></div>
+        <div class="proj-tile-body">
+          <span class="proj-tile-cat">Architektura</span>
+          <h3 class="proj-tile-title">Moderní Vila</h3>
+        </div>
+        <span class="proj-tile-plus" aria-hidden="true">+</span>
+      </article>
+
+      <article class="proj-tile" data-index="5" data-project="project_6.jpg" data-title="Kuchyňský Design">
+        <div class="proj-tile-img"><img src="nahled_6.jpg" alt="Kuchyňský Design" loading="lazy"></div>
+        <div class="proj-tile-body">
+          <span class="proj-tile-cat">Interiér</span>
+          <h3 class="proj-tile-title">Kuchyňský Design</h3>
+        </div>
+        <span class="proj-tile-plus" aria-hidden="true">+</span>
+      </article>
+    </div>
+
+    <div class="projects-cta">
+      <a href="portfolio.html" class="projects-btn">
+        <span>Všechny projekty</span>
+        <span class="btn-arrow">→</span>
+      </a>
     </div>
   </section>
 
