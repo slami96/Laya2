@@ -70,9 +70,9 @@ function initServices() {
   const RW = 7, RD = 5.5, RH = 3.8;
   function recalcIso() {
     if (!W || !H) return;
-    isoScale = Math.min(W, H) * 0.066;
+    isoScale = Math.min(W, H) * 0.056;
     isoOffX = W * 0.5 - (RW / 2 - RD / 2) * COS30 * isoScale;
-    isoOffY = H * 0.5 - ((RW / 2 + RD / 2) * SIN30 - RH / 2) * isoScale - H * 0.06;
+    isoOffY = H * 0.5 - ((RW / 2 + RD / 2) * SIN30 - RH / 2) * isoScale;
   }
   function iso(x, y, z) { return { x: (x - y) * COS30 * isoScale + isoOffX, y: ((x + y) * SIN30 - z) * isoScale + isoOffY }; }
 
