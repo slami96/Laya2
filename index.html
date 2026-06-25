@@ -65,11 +65,20 @@
        ═══════════════════════════════ -->
   <section class="hero-section" id="hero" data-theme="dark">
     <div class="hero-media">
-      <!-- Plays once and holds on the final (furnished) frame. Poster shows instantly while the video loads. -->
-      <video class="hero-video" autoplay muted playsinline preload="auto" poster="interior_1.jpg">
+      <!-- Plays once (no poster - browser shows the video's own first frame), then dissolves into the slideshow below. -->
+      <video class="hero-video" autoplay muted playsinline preload="auto">
         <source src="hero.mp4" type="video/mp4">
-        <!-- Optional: add a smaller modern encoding if you generate it -> <source src="hero.webm" type="video/webm"> -->
+        <!-- Optional smaller encoding if you generate it -> <source src="hero.webm" type="video/webm"> -->
       </video>
+      <div class="hero-slideshow" id="hero-slideshow" aria-hidden="true">
+        <img class="hero-slide" src="interior_1.jpg" alt="">
+        <img class="hero-slide" src="interior_3.jpg" alt="">
+        <img class="hero-slide" src="interior_4.jpg" alt="">
+        <img class="hero-slide" src="interior_7.jpg" alt="">
+        <img class="hero-slide" src="interior_2.jpg" alt="">
+        <img class="hero-slide" src="interior_5.jpg" alt="">
+        <img class="hero-slide" src="interior_6.jpg" alt="">
+      </div>
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-vignette"></div>
@@ -128,15 +137,13 @@
        SERVICES — ACCORDION + WIREFRAME REVEAL
        ═══════════════════════════════ -->
   <section class="services-section" id="services" data-theme="light">
-    <div class="services-header">
-      <div class="section-label" style="justify-content:center;">Naše služby</div>
-      <h2 class="services-heading">
-        Co Vám mohu <span class="accent">nabídnout</span>
-      </h2>
-    </div>
-
-    <div class="srv-stage" id="srv-stage">
-      <canvas id="house-canvas"></canvas>
+    <div class="srv-left">
+      <div class="services-header">
+        <div class="section-label">Naše služby</div>
+        <h2 class="services-heading">
+          Co Vám mohu <span class="accent">nabídnout</span>
+        </h2>
+      </div>
 
       <div class="srv-accordion" id="srv-accordion">
 
@@ -199,10 +206,14 @@
 
       </div>
     </div>
+
+    <div class="srv-visual" id="srv-visual">
+      <canvas id="house-canvas"></canvas>
+    </div>
   </section>
 
   <!-- ═══════════════════════════════
-       PROCESS — STACKING CARDS
+       PROCESS — TIMELINE
        ═══════════════════════════════ -->
   <section class="process-section" data-theme="light">
     <div class="process-header">
