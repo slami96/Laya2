@@ -261,8 +261,8 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   gap: 80px; align-items: center;
 }
 .section-label {
-  font-family: var(--font-heading); font-size: 11px;
-  letter-spacing: 0.3em; text-transform: uppercase;
+  font-family: var(--font-heading); font-size: 0.8rem; font-weight: 500;
+  letter-spacing: 0.15em; text-transform: uppercase;
   margin-bottom: 20px; display: flex; align-items: center; gap: 16px; color: var(--gold);
 }
 .section-label::before { content: ''; width: 32px; height: 1px; background: var(--gold); }
@@ -309,7 +309,10 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   flex: 1 1 53%; position: relative; overflow: hidden;
   background: var(--warm-white);
 }
-#house-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.srv-visual .ba-slider {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  aspect-ratio: auto; border-radius: 0; border: none;
+}
 
 .services-header { text-align: left; margin-bottom: clamp(32px, 4vw, 52px); }
 .srv-left .section-label { justify-content: flex-start; }
