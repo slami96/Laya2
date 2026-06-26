@@ -312,7 +312,8 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   padding: clamp(48px, 7vh, 104px) clamp(28px, 3vw, 56px);
 }
 .srv-visual .ba-slider {
-  position: relative; width: 100%; max-width: 760px; height: auto;
+  position: relative; width: 100%; max-width: 720px; height: auto;
+  margin: 0 auto;                /* centre the card in the right half */
   aspect-ratio: auto;            /* keep the photo's own proportions (no crop) */
 }
 .srv-visual .ba-after {
