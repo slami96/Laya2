@@ -364,18 +364,30 @@ function initProjects() {
 function initBeforeAfter() {
   document.querySelectorAll('.ba-slider').forEach(function (slider) {
     const handle = slider.querySelector('.ba-handle');
+    const after = slider.querySelector('.ba-after');
     let dragging = false;
 
-    function setPos(clientX) {
-      const r = slider.getBoundingClientRect();
-      let x = (clientX - r.left) / r.width;
-      x = Math.max(0, Math.min(1, x));
-      const pct = x * 100;
-      slider.style.setProperty('--ba', (100 - pct) + '%');
+    // Box takes the photo's real shape so BEFORE and AFTER are identical height (no gap, no crop).
+    function setAspect() {
+      if (after && after.naturalWidth) slider.style.aspectRatio = after.naturalWidth + ' / ' + after.naturalHeight;
+    }
+    if (after) { after.complete ? setAspect() : after.addEventListener('load', setAspect); }
+
+    function apply(pct) {
+      pct = Math.max(0, Math.min(100, pct));
+      slider.style.setProperty('--ba', (100 - pct) + '%');   // how much of BEFORE is hidden from the right
       if (handle) handle.style.left = pct + '%';
     }
+    function setPos(clientX) {
+      const r = slider.getBoundingClientRect();
+      apply(((clientX - r.left) / r.width) * 100);
+    }
+
+    // Initial position: data-start = % of BEFORE shown (default 50). Services uses 20 -> 80% AFTER visible.
+    apply(parseFloat(slider.dataset.start || '50'));
 
     slider.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
       dragging = true;
       try { slider.setPointerCapture(e.pointerId); } catch (er) {}
       setPos(e.clientX);
@@ -383,6 +395,9 @@ function initBeforeAfter() {
     slider.addEventListener('pointermove', function (e) { if (dragging) setPos(e.clientX); });
     slider.addEventListener('pointerup', function () { dragging = false; });
     slider.addEventListener('pointercancel', function () { dragging = false; });
+    // Safari: don't let the image get selected / native-dragged (the blue "copy" highlight)
+    slider.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    slider.addEventListener('selectstart', function (e) { e.preventDefault(); });
   });
 }
 
