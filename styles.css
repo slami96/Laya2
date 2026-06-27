@@ -302,22 +302,19 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
    ═══════════════════════════ */
 .services-section { display: flex; align-items: stretch; min-height: 100vh; background-color: var(--warm-white); }
 .srv-left {
-  flex: 1 1 47%; display: flex; flex-direction: column; justify-content: center;
+  flex: 1 1 47%; display: flex; flex-direction: column; justify-content: flex-start;
   padding: clamp(56px, 6vw, 110px) clamp(32px, 5vw, 84px);
 }
 .srv-visual {
   flex: 1 1 53%; position: relative; overflow: hidden;
   background: var(--warm-white);
-  display: flex; align-items: center; justify-content: center;
-  padding: clamp(48px, 7vh, 104px) clamp(28px, 3vw, 56px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: clamp(56px, 6vw, 110px) clamp(28px, 3vw, 56px);
 }
 .srv-visual .ba-slider {
-  position: relative; width: 100%; max-width: 720px; height: auto;
-  margin: 0 auto;                /* centre the card in the right half */
-  aspect-ratio: auto;            /* keep the photo's own proportions (no crop) */
-}
-.srv-visual .ba-after {
-  position: relative; inset: auto; width: 100%; height: auto;
+  position: relative; width: 100%; max-width: 720px;
+  margin: clamp(100px, 10vw, 150px) auto 0;   /* top-aligns with the first service ("Design interiéru") */
+  aspect-ratio: 16 / 10;                       /* fallback; project.js sets it from the actual photo */
 }
 
 .services-header { text-align: left; margin-bottom: clamp(32px, 4vw, 52px); }
@@ -343,12 +340,14 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 }
 .srv-titles { flex: 1; }
 .srv-title {
+  display: block;
   font-family: var(--font-display); font-size: clamp(1.5rem, 2.2vw, 2.1rem);
   font-weight: 400; color: var(--text-dark); line-height: 1.15; transition: color 0.4s var(--ease);
 }
 .srv-benefit {
+  display: block;
   font-family: var(--font-body); font-size: 0.92rem; font-weight: 300;
-  color: var(--text-muted-dark); margin-top: 8px;
+  color: var(--text-muted-dark); margin-top: 6px;
 }
 .srv-icon { flex-shrink: 0; width: 26px; height: 26px; position: relative; margin-top: 8px; }
 .srv-icon::before, .srv-icon::after {
@@ -433,9 +432,9 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 .ba-slider {
   position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden;
   border-radius: 14px; border: 1px solid var(--border-light);
-  cursor: ew-resize; user-select: none; touch-action: none; --ba: 50%;
+  cursor: ew-resize; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; --ba: 50%;
 }
-.ba-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.ba-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
 .ba-before { clip-path: inset(0 var(--ba) 0 0); }
 .ba-label {
   position: absolute; top: 16px; z-index: 3;
@@ -660,7 +659,8 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   .contact-subtext { margin: 0 auto; }
   .contact-form .form-submit-wrapper { text-align: center; }
   .services-section { flex-direction: column; }
-  .srv-visual { flex: none; min-height: 56vh; order: 2; }
+  .srv-visual { flex: none; min-height: 56vh; order: 2; align-items: center; padding-top: 0; }
+  .srv-visual .ba-slider { margin-top: 0; }
   .srv-left { flex: none; padding: clamp(48px, 8vw, 72px) clamp(24px, 6vw, 48px); }
   .srv-body-inner { padding-left: 44px; }
   .proj-grid-home { grid-template-columns: repeat(2, 1fr); }
