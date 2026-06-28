@@ -43,8 +43,8 @@ a { color: inherit; text-decoration: none; }
 .header-nav a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px; background: var(--gold); transition: width 0.4s var(--ease); }
 .header-nav a:hover { color: var(--gold); }
 .header-nav a:hover::after, .header-nav a.active::after { width: 100%; }
-.header-logo { display: flex; align-items: center; }
-.header-logo img { height: 42px; width: auto; }
+.header-logo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; }
+.header-logo img { height: 110px; width: auto; filter: brightness(0); }   /* match main page size */
 
 /* ═══════════════════════════════════════════
    ARTICLE HEAD
@@ -126,7 +126,8 @@ a { color: inherit; text-decoration: none; }
 /* ───── Responsive ───── */
 @media (max-width: 900px) {
   .header-nav-left, .header-nav-right { display: none; }
-  .header-logo { margin: 0 auto; }
+  .header-logo { position: relative; left: auto; top: auto; transform: none; margin: 0 auto; }
+  .header-logo img { height: 90px; }
   .pj-row { grid-template-columns: 1fr; gap: 28px; }
   .pj-row .pj-media { order: -1; }
   .pj-text { max-width: none; }
