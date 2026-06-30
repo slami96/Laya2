@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekonstrukce interiéru RD — LAYA HOME</title>
+  <meta name="description" content="Rekonstrukce interiéru rodinného domu na Trutnovsku — citlivá modernizace se zachováním původního charakteru. Realizováno 2024, LAYA HOME.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+/* ═══════════════════════════════════════════════════════════
+   LAYA HOME — Project detail · GALLERY (minimal)
+   Short text · spec table · image-led · quiet motion.
+   ═══════════════════════════════════════════════════════════ */
+
+:root{
+  --header-height: 80px;
+  --gold:#c2a47e; --gold-light:#d4ba98;
+  --dark-1:#0a0a08;
+  --warm-white:#f5f0ea; --cream:#faf7f2; --white:#ffffff;
+  --text-dark:#262421; --text-muted:#8f8a82;
+  --text-light:#e8e4de; --text-muted-light:rgba(232,228,222,.5); --border-dark:rgba(194,164,126,.12);
+  --border:rgba(38,36,33,.14); --border-faint:rgba(38,36,33,.08);
+  --font-display:'Brolian','Cormorant Garamond',serif;
+  --font-heading:'Montserrat',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+@font-face{font-family:'Brolian';src:url('../../Brolian-Thin.woff2') format('woff2');font-weight:100;font-style:normal;font-display:swap;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--text-dark);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+img{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--gold);color:var(--white);}
+
+.wrap{width:100%;max-width:1240px;margin:0 auto;padding:0;}
+.label{font-family:var(--font-heading);text-transform:uppercase;letter-spacing:.26em;font-size:.66rem;font-weight:500;}
+
+/* quiet, single fade-in */
+.reveal{opacity:1;}
+html.js .reveal{opacity:0;transform:translateY(16px);}
+html.js .reveal.in{opacity:1;transform:none;transition:opacity .8s var(--ease),transform .8s var(--ease);}
+
+/* ───── Header (logo + nav, dark on cream — matches main site light state) ───── */
+.site-header{
+  position:fixed;top:0;left:0;width:100%;height:var(--header-height);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(22px,5vw,72px);z-index:200;
+  background:rgba(250,247,242,0);border-bottom:1px solid transparent;
+  transition:background .4s var(--ease),border-color .4s var(--ease);
+}
+.site-header.solid{background:rgba(250,247,242,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+.header-nav ul{list-style:none;display:flex;gap:36px;align-items:center;}
+.header-nav-left{flex:1;}.header-nav-right{flex:1;display:flex;justify-content:flex-end;}
+.header-nav a{font-family:var(--font-heading);font-size:.76rem;font-weight:500;text-transform:uppercase;letter-spacing:.15em;color:var(--text-dark);position:relative;padding-bottom:3px;transition:color .3s ease;}
+.header-nav a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gold);transition:width .4s var(--ease);}
+.header-nav a:hover::after,.header-nav a.active::after{width:100%;}
+.header-nav a:hover{color:var(--gold);}
+.header-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;}
+.header-logo img{height:110px;width:auto;display:block;filter:brightness(0);transition:transform .4s var(--ease);}
+.header-logo a:hover img{transform:scale(1.05);}
+
+/* ───── Project header row ───── */
+.pjhead{padding-top:calc(var(--header-height) + clamp(30px,5vw,58px));padding-bottom:clamp(22px,3vw,34px);}
+.pjhead-row{display:flex;justify-content:space-between;align-items:center;gap:24px;}
+.pjhead-title{font-family:var(--font-display);font-weight:400;font-size:clamp(32px,4.6vw,60px);line-height:1;letter-spacing:-.01em;color:var(--text-dark);}
+.pjhead-meta{font-family:var(--font-heading);font-size:.64rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--text-muted);text-align:center;line-height:1.8;}
+.pjhead-meta span{color:var(--gold);}
+.pjhead-next{justify-self:end;display:inline-flex;align-items:center;gap:10px;font-family:var(--font-heading);font-size:.74rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dark);transition:color .3s ease,gap .3s var(--ease);}
+.pjhead-next:hover{color:var(--gold);gap:16px;}
+
+/* ───── Hero image ───── */
+.pjhero{overflow:hidden;background:var(--warm-white);}
+.pjhero img{width:100%;height:clamp(320px,62vh,640px);object-fit:cover;}
+
+/* ───── Info band: table + short description ───── */
+.pjinfo{display:grid;grid-template-columns:0.85fr 1.15fr;gap:clamp(36px,6vw,110px);padding-block:clamp(44px,6vw,86px);}
+.spec{align-self:start;}
+.spec-row{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:15px 0;border-bottom:1px solid var(--border);}
+.spec-row:first-child{border-top:1px solid var(--border);}
+.spec-row dt{font-family:var(--font-heading);font-size:.62rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);}
+.spec-row dd{font-family:var(--font-heading);font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dark);text-align:right;}
+.desc .status{font-family:var(--font-heading);font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:22px;}
+.desc p{font-family:var(--font-body);font-weight:300;font-size:1.05rem;line-height:1.9;color:var(--text-dark);margin-bottom:1.1em;}
+.desc p:last-child{margin-bottom:0;}
+
+/* ───── Gallery (image-led; drawings as quiet white plates) ───── */
+.pjgal{padding-bottom:clamp(50px,7vw,96px);}
+.gal-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.6vw,20px);}
+.g-item{position:relative;overflow:hidden;}
+.g-item.full{grid-column:1 / -1;}
+.g-item.photo{background:var(--warm-white);aspect-ratio:4/3;}
+.g-item.photo.wide{aspect-ratio:16/9;}
+.g-item.photo img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease);}
+.g-item.photo:hover img{transform:scale(1.04);}
+
+.g-item.plate{background:var(--white);border:1px solid var(--border);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;padding:clamp(22px,3vw,44px);}
+.g-item.plate.wide{aspect-ratio:5/2;}
+.g-item.plate img{width:100%;height:100%;object-fit:contain;-webkit-user-drag:none;user-select:none;}
+.g-item.plate .plabel{position:absolute;left:clamp(16px,2vw,24px);bottom:clamp(14px,2vw,20px);display:flex;align-items:baseline;gap:12px;}
+.g-item.plate .plabel .nm{font-family:var(--font-heading);font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);}
+.g-item.plate .plabel .cd{font-family:var(--font-heading);font-size:.58rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);}
+
+/* ───── Prev / Next ───── */
+.pjnav{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:clamp(26px,3vw,38px) 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  font-family:var(--font-heading);font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);}
+.pjnav a{display:inline-flex;align-items:center;gap:10px;transition:color .3s ease,gap .3s var(--ease);}
+.pjnav a:hover{color:var(--gold);gap:16px;}
+
+/* ───── CTA ───── */
+.pjcta{text-align:center;padding:clamp(64px,9vw,128px) 0;}
+.pjcta h2{font-family:var(--font-display);font-weight:300;font-size:clamp(28px,4.4vw,52px);line-height:1.1;color:var(--text-dark);margin-bottom:30px;}
+.pjcta h2 em{font-style:italic;color:var(--gold);}
+.btn{display:inline-flex;align-items:center;gap:12px;padding:16px 44px;border:1px solid var(--text-dark);color:var(--text-dark);font-family:var(--font-heading);font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;position:relative;overflow:hidden;transition:color .5s var(--ease),border-color .5s var(--ease);}
+.btn::before{content:'';position:absolute;inset:0;background:var(--text-dark);transform:translateY(101%);transition:transform .5s var(--ease);}
+.btn:hover::before{transform:translateY(0);}
+.btn:hover{color:var(--cream);}
+.btn span{position:relative;z-index:1;}
+
+/* ───── Footer ───── */
+.site-footer{background-color:var(--dark-1);padding:64px 48px 40px;text-align:center;color:var(--text-light);border-top:1px solid var(--border-dark);}
+.footer-content{max-width:1200px;margin:0 auto;}
+.site-footer .social-icons{display:flex;justify-content:center;gap:32px;margin-bottom:28px;}
+.site-footer .social-icons a{text-decoration:none;color:var(--text-muted-light);font-size:1.2rem;transition:color .3s ease,transform .3s var(--ease);display:inline-block;}
+.site-footer .social-icons a:hover{color:var(--gold);transform:translateY(-3px);}
+.site-footer .footer-tagline{font-size:.82rem;color:var(--text-muted-light);font-family:var(--font-body);font-weight:300;letter-spacing:.04em;line-height:1.7;max-width:520px;margin:0 auto 14px;}
+.site-footer .copyright{font-size:.78rem;color:var(--text-muted-light);font-family:var(--font-body);font-weight:300;letter-spacing:.05em;}
+
+/* ───── Responsive ───── */
+@media(max-width:1288px){
+  .wrap{padding-inline:24px;}
+}
+@media(max-width:900px){
+  .header-nav-left,.header-nav-right{display:none;}
+  .header-logo{position:relative;left:auto;top:auto;transform:none;margin:0 auto;}
+  .header-logo img{height:90px;}
+  .pjhead-row{flex-direction:column;align-items:center;text-align:center;gap:16px;}
+  .pjinfo{grid-template-columns:1fr;gap:34px;}
+}
+@media(max-width:600px){
+  .gal-grid{grid-template-columns:1fr;}
+  .g-item.photo,.g-item.photo.wide{aspect-ratio:4/3;}
+  .g-item.plate,.g-item.plate.wide{aspect-ratio:4/3;}
+}
+@media(prefers-reduced-motion:reduce){
+  html.js .reveal{opacity:1;transform:none;}
+  *{scroll-behavior:auto;}
+}
+  </style>
+</head>
+<body>
+
+  <header class="site-header" id="header">
+    <nav class="header-nav header-nav-left">
+      <ul>
+        <li><a href="../../index.html#about">O mně</a></li>
+        <li><a href="../../index.html#services">Moje zaměření</a></li>
+      </ul>
+    </nav>
+    <div class="header-logo">
+      <a href="../../index.html" aria-label="LAYA HOME — domů"><img src="../../logo.png" alt="LAYA HOME"></a>
+    </div>
+    <nav class="header-nav header-nav-right">
+      <ul>
+        <li><a href="../../portfolio.html" class="active">Portfolio</a></li>
+        <li><a href="../../index.html#contact">Kontakt</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- Project header -->
+    <header class="pjhead wrap">
+      <div class="pjhead-row reveal">
+        <h1 class="pjhead-title">Rekonstrukce interiéru RD</h1>
+        <a href="../projekt_2/" class="pjhead-next">Další&nbsp; &#8250;</a>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="wrap">
+      <div class="pjhero reveal"><img src="hero.jpg" alt="Rekonstrukce interiéru RD — hlavní pohled" fetchpriority="high"></div>
+    </section>
+
+    <!-- Info: table + short description -->
+    <section class="wrap pjinfo">
+      <dl class="spec reveal">
+        <div class="spec-row"><dt>Lokalita</dt><dd>Trutnovsko</dd></div>
+        <div class="spec-row"><dt>Rok</dt><dd>2024</dd></div>
+        <div class="spec-row"><dt>Typ</dt><dd>Rekonstrukce, přestavba</dd></div>
+        <div class="spec-row"><dt>Architekt</dt><dd>LAYA HOME</dd></div>
+        <div class="spec-row"><dt>Stav</dt><dd>Realizováno</dd></div>
+      </dl>
+      <div class="desc reveal">
+        <div class="status">Stav: realizováno</div>
+        <p>Rekonstrukce rodinného domu byla navržena s respektem k původnímu charakteru objektu a s důrazem na zachování jeho autenticity. Cílem návrhu bylo citlivě modernizovat interiér při zachování původního prostorového uspořádání a atmosféry domu.</p>
+        <p>Dispoziční úpravy byly minimální – v interiéru došlo pouze k odstranění jedné stěny, čímž vznikl otevřenější a lépe propojený obytný prostor. Součástí návrhu bylo také nové řešení kuchyně a návrh nábytku do obývacího pokoje, které byly realizovány na míru.</p>
+        <p>V koupelně byl zachován původní obklad jako důležitý prvek původního charakteru interiéru. Původní vana byla nahrazena sprchovým koutem a prostor byl doplněn moderními zařizovacími prvky, které přinášejí vyšší komfort při zachování celkové harmonie interiéru.</p>
+      </div>
+    </section>
+
+    <!-- Gallery -->
+    <section class="wrap pjgal">
+      <div class="gal-grid">
+        <figure class="g-item photo full wide reveal"><img src="01.jpg" alt="Rekonstrukce interiéru RD — interiér 1" loading="lazy" decoding="async"></figure>
+
+        <figure class="g-item photo reveal"><img src="02.jpg" alt="Rekonstrukce interiéru RD — interiér 2" loading="lazy" decoding="async"></figure>
+        <figure class="g-item photo reveal"><img src="03.jpg" alt="Rekonstrukce interiéru RD — interiér 3" loading="lazy" decoding="async"></figure>
+
+        <figure class="g-item photo reveal"><img src="04.jpg" alt="Rekonstrukce interiéru RD — interiér 4" loading="lazy" decoding="async"></figure>
+        <figure class="g-item plate reveal"><img src="vykres.jpg" alt="Výkresová dokumentace" loading="lazy" decoding="async"><figcaption class="plabel"><span class="nm">Výkresová dokumentace</span></figcaption></figure>
+
+        <figure class="g-item photo reveal"><img src="05.jpg" alt="Rekonstrukce interiéru RD — interiér 5" loading="lazy" decoding="async"></figure>
+        <figure class="g-item photo reveal"><img src="06.jpg" alt="Rekonstrukce interiéru RD — interiér 6" loading="lazy" decoding="async"></figure>
+
+        <figure class="g-item photo full wide reveal"><img src="07.jpg" alt="Rekonstrukce interiéru RD — interiér 7" loading="lazy" decoding="async"></figure>
+
+        <figure class="g-item photo reveal"><img src="08.jpg" alt="Rekonstrukce interiéru RD — interiér 8" loading="lazy" decoding="async"></figure>
+        <figure class="g-item photo reveal"><img src="09.jpg" alt="Rekonstrukce interiéru RD — interiér 9" loading="lazy" decoding="async"></figure>
+      </div>
+    </section>
+
+    <!-- Prev / Next -->
+    <nav class="wrap pjnav reveal">
+      <a href="../../portfolio.html">&#8249;&nbsp; Zpět na portfolio</a>
+      <a href="../projekt_2/">Další projekt &nbsp;&#8250;</a>
+    </nav>
+
+    <!-- CTA -->
+    <section class="pjcta">
+      <div class="wrap reveal">
+        <h2>Pojďme probrat <em>váš projekt</em>.</h2>
+        <a href="../../index.html#contact" class="btn"><span>Kontaktujte mě</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" data-theme="dark">
+    <div class="footer-content">
+      <div class="social-icons">
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+        <a href="#" aria-label="Houzz"><i class="fab fa-houzz"></i></a>
+      </div>
+      <p class="footer-tagline">Studentské a osobní portfolio architektonických návrhů a interiérového designu</p>
+      <p class="copyright">&copy; <span id="copyright-year"></span> LAYA HOME. Všechna práva vyhrazena.</p>
+    </div>
+  </footer>
+
+  <script>
+  document.documentElement.classList.add('js');
+  document.addEventListener('DOMContentLoaded', () => {
+    const y = document.getElementById('copyright-year'); if (y) y.textContent = new Date().getFullYear();
+
+    const header = document.getElementById('header');
+    const setHeader = () => header.classList.toggle('solid', window.scrollY > 40);
+    setHeader(); window.addEventListener('scroll', setHeader, { passive: true });
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const items = document.querySelectorAll('.reveal');
+    if (reduce || !('IntersectionObserver' in window)) { items.forEach(el => el.classList.add('in')); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    items.forEach(el => io.observe(el));
+  });
+  </script>
+</body>
+</html>
