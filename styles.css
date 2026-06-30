@@ -273,10 +273,11 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
 }
 .about-heading .accent { color: var(--gold); font-style: italic; }
 .about-text p {
-  font-size: 0.95rem; line-height: 1.9; margin-bottom: 24px;
+  font-size: 0.95rem; line-height: 1.9; margin-bottom: 0; text-indent: 2em;
   font-weight: 300; color: var(--text-muted-dark); font-style: italic;
   text-align: justify;
 }
+.about-text p:first-child { text-indent: 0; }
 .about-image-col { position: relative; }
 .about-portrait-clip {
   position: relative; overflow: hidden;
@@ -641,6 +642,15 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   font-size: 0.78rem; color: var(--text-muted-light);
   font-family: var(--font-body); font-weight: 300; letter-spacing: 0.05em;
 }
+.site-footer .footer-tagline {
+  font-size: 0.82rem; color: var(--text-muted-light);
+  font-family: var(--font-body); font-weight: 300; letter-spacing: 0.04em;
+  line-height: 1.7; max-width: 520px; margin: 0 auto 14px;
+}
+.contact-form .form-consent {
+  font-size: 0.72rem; line-height: 1.6; color: var(--text-muted-dark);
+  font-family: var(--font-body); font-weight: 300; margin-top: 18px; opacity: 0.85;
+}
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 1200px) {
@@ -653,7 +663,7 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   .about-grid { grid-template-columns: 1fr; gap: 48px; text-align: center; }
   .about-image-col { max-width: 320px; margin: 0 auto; order: -1; }
   .about-frame { top: 16px; left: 16px; right: -16px; bottom: -16px; }
-  .about-text p { text-align: center; }
+  .about-text p { text-align: center; text-indent: 0; }
   .section-label { justify-content: center; }
   .contact-inner { grid-template-columns: 1fr; gap: 48px; text-align: center; }
   .contact-subtext { margin: 0 auto; }
