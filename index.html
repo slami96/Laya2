@@ -65,13 +65,11 @@
        ═══════════════════════════════ -->
   <section class="hero-section" id="hero" data-theme="dark">
     <div class="hero-media">
-      <!-- Poster shows instantly. The video is revealed only once it is actually PLAYING (see main.js),
-           so if Safari refuses autoplay its play-button can never appear. Plays once, then the slideshow. -->
-      <video class="hero-video" autoplay muted playsinline preload="auto">
+      <!-- Plays once, holds on the furnished room, then dissolves into the slideshow below. Poster = first frame (empty room) so it shows instantly and matches the video's start. -->
+      <video class="hero-video" poster="hero-poster.jpg" autoplay muted playsinline preload="auto">
         <source src="hero.mp4" type="video/mp4">
         <!-- Optional smaller encoding if you generate it -> <source src="hero.webm" type="video/webm"> -->
       </video>
-      <img class="hero-poster" src="hero-poster.jpg" alt="" aria-hidden="true">
       <div class="hero-slideshow" id="hero-slideshow" aria-hidden="true">
         <img class="hero-slide" src="interior_1.jpg" alt="">
         <img class="hero-slide" src="interior_3.jpg" alt="">
