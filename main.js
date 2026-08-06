@@ -162,6 +162,7 @@ function initHero() {
 
   // Looping interior slideshow (Ken Burns) — same timing as the original hero
   let slideStarted = false;
+  let dissolving = false;
   function startSlideshow() {
     if (slideStarted || !slides.length) return;
     slideStarted = true;
@@ -181,9 +182,24 @@ function initHero() {
     }, 3000);
   }
   function dissolveToSlideshow() {
-    if (slideshow) gsap.to(slideshow, { opacity: 1, duration: 1.2, ease: 'power2.inOut' });
-    if (video) gsap.to(video, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
-    startSlideshow();
+    if (dissolving) return;                       // only run once (catch / ended / timeout)
+    dissolving = true;
+    const run = () => {
+      if (slideshow) gsap.to(slideshow, { opacity: 1, duration: 1.2, ease: 'power2.inOut' });
+      if (video) gsap.to(video, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
+      startSlideshow();
+    };
+    // Hold the video's last frame until the first slide has actually decoded,
+    // otherwise the cross-fade reveals an un-painted <img> (blank for a few seconds).
+    const first = slides[0];
+    if (first && !first.complete) {
+      let fired = false;
+      const go = () => { if (!fired) { fired = true; run(); } };
+      first.addEventListener('load', go, { once: true });
+      setTimeout(go, 2500);                        // safety net so it can never hang
+    } else {
+      run();
+    }
   }
 
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -199,9 +215,14 @@ function initHero() {
       startSlideshow();
     }
   } else {
+    video.muted = true;          // Safari honours the muted PROPERTY, not always the attribute
+    video.playsInline = true;
     const p = video.play();
-    if (p && p.catch) p.catch(() => dissolveToSlideshow());   // autoplay blocked -> slideshow
+    if (p && p.catch) p.catch(() => dissolveToSlideshow());   // autoplay rejected -> slideshow
     video.addEventListener('ended', dissolveToSlideshow);     // video done -> dissolve into slideshow
+    // Safari can refuse autoplay WITHOUT rejecting the promise (e.g. "Never Auto-Play"),
+    // leaving a paused video + play button. If it never started, fall back to the slideshow.
+    setTimeout(() => { if (video.paused && video.currentTime === 0) dissolveToSlideshow(); }, 1000);
   }
 
   // Subtle parallax on the media block
