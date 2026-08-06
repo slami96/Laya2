@@ -162,7 +162,6 @@ function initHero() {
 
   // Looping interior slideshow (Ken Burns) — same timing as the original hero
   let slideStarted = false;
-  let dissolving = false;
   function startSlideshow() {
     if (slideStarted || !slides.length) return;
     slideStarted = true;
@@ -181,48 +180,63 @@ function initHero() {
       gsap.delayedCall(1.2, () => gsap.set(prev, { scale: 1.05 }));
     }, 3000);
   }
-  function dissolveToSlideshow() {
-    if (dissolving) return;                       // only run once (catch / ended / timeout)
-    dissolving = true;
-    const run = () => {
-      if (slideshow) gsap.to(slideshow, { opacity: 1, duration: 1.2, ease: 'power2.inOut' });
-      if (video) gsap.to(video, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
-      startSlideshow();
-    };
-    // Hold the video's last frame until the first slide has actually decoded,
-    // otherwise the cross-fade reveals an un-painted <img> (blank for a few seconds).
-    const first = slides[0];
-    if (first && !first.complete) {
-      let fired = false;
-      const go = () => { if (!fired) { fired = true; run(); } };
-      first.addEventListener('load', go, { once: true });
-      setTimeout(go, 2500);                        // safety net so it can never hang
-    } else {
-      run();
-    }
+  const poster = document.querySelector('.hero-poster');
+  let handled = false;
+
+  // Reveal the looping slideshow underneath by fading the poster away.
+  function toSlideshow() {
+    if (handled) return; handled = true;
+    startSlideshow();
+    if (slideshow) gsap.set(slideshow, { opacity: 1 });
+    if (poster) gsap.to(poster, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
   }
 
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const saveData = navigator.connection && navigator.connection.saveData;
 
   if (!video || reduce || saveData) {
-    // No video: show the slideshow straight away
-    if (slideshow) gsap.set(slideshow, { opacity: 1 });
     if (video) video.style.display = 'none';
+    if (slideshow) gsap.set(slideshow, { opacity: 1 });
     if (reduce) {
+      handled = true;
+      if (poster) gsap.set(poster, { opacity: 0 });
       if (slides[0]) gsap.set(slides[0], { opacity: 1, scale: 1 });   // static, no motion
     } else {
-      startSlideshow();
+      toSlideshow();                                                  // save-data: slideshow only
     }
   } else {
     video.muted = true;          // Safari honours the muted PROPERTY, not always the attribute
     video.playsInline = true;
-    const p = video.play();
-    if (p && p.catch) p.catch(() => dissolveToSlideshow());   // autoplay rejected -> slideshow
-    video.addEventListener('ended', dissolveToSlideshow);     // video done -> dissolve into slideshow
-    // Safari can refuse autoplay WITHOUT rejecting the promise (e.g. "Never Auto-Play"),
-    // leaving a paused video + play button. If it never started, fall back to the slideshow.
-    setTimeout(() => { if (video.paused && video.currentTime === 0) dissolveToSlideshow(); }, 1000);
+    // Slideshow runs underneath from the start (hidden by the poster) so it's warm when revealed.
+    if (slideshow) gsap.set(slideshow, { opacity: 1 });
+    startSlideshow();
+
+    // KEY FIX: reveal the video ONLY once it is genuinely PLAYING (a frame has rendered).
+    // If Safari refuses autoplay, the video stays invisible (opacity 0) so its play button can never appear.
+    const revealVideo = () => {
+      if (handled) return;                                            // already fell back -> don't pop the video in
+      handled = true;
+      gsap.to(video, { opacity: 1, duration: 0.6, ease: 'power2.inOut' });
+    };
+    video.addEventListener('playing', revealVideo, { once: true });   // 'playing' can't be faked by paused/currentTime
+    // Non-looping video ends -> fade video + poster out, leaving the slideshow.
+    video.addEventListener('ended', () => {
+      gsap.to(video, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
+      if (poster) gsap.to(poster, { opacity: 0, duration: 1.2, ease: 'power2.inOut' });
+    });
+
+    const tryPlay = () => { const p = video.play(); if (p && p.catch) p.catch(() => {}); };
+    tryPlay();
+    if (!video.paused) revealVideo();                                 // already playing before listener attached
+
+    // Safari blocks autoplay in Low Power Mode / "Never Auto-Play". A user gesture unlocks muted
+    // playback — retry once on the first tap/scroll so the video can still start after interaction.
+    const gestureRetry = () => { if (!handled) tryPlay(); };
+    window.addEventListener('touchstart', gestureRetry, { once: true, passive: true });
+    window.addEventListener('click', gestureRetry, { once: true });
+
+    // Watchdog: if 'playing' never fired (truly blocked, no gesture), drop the poster into the slideshow.
+    setTimeout(() => { if (!handled) toSlideshow(); }, 2500);
   }
 
   // Subtle parallax on the media block
