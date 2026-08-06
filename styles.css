@@ -163,6 +163,9 @@ body, html {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center; z-index: 2;
 }
+/* Safari shows a big central play button when it won't autoplay — hide it (JS falls back to the slideshow) */
+.hero-video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
+.hero-video::-webkit-media-controls { display: none !important; }
 .hero-slideshow { position: absolute; inset: 0; z-index: 1; opacity: 0; }
 .hero-slide {
   position: absolute; inset: 0; width: 100%; height: 100%;
