@@ -161,20 +161,11 @@ body, html {
 .hero-media { position: absolute; inset: 0; overflow: hidden; will-change: transform; z-index: 0; }
 .hero-video {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: center; z-index: 3; opacity: 0;
-}
-.hero-poster {
-  position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center; z-index: 2;
 }
-/* Extra safety: hide Safari's native play glyph if it ever renders (main.js keeps the video hidden until it plays) */
-.hero-video::-webkit-media-controls-start-playback-button,
-.hero-video::-webkit-media-controls-play-button,
-.hero-video::-webkit-media-controls-panel,
-.hero-video::-webkit-media-controls {
-  display: none !important;
-  -webkit-appearance: none;
-}
+/* Safari shows a big central play button when it won't autoplay — hide it (JS falls back to the slideshow) */
+.hero-video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
+.hero-video::-webkit-media-controls { display: none !important; }
 .hero-slideshow { position: absolute; inset: 0; z-index: 1; opacity: 0; }
 .hero-slide {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -720,4 +711,12 @@ body.scrolled .scroll-indicator { opacity: 0; pointer-events: none; }
   .about-section { padding: 80px 16px; }
   .contact-section { padding: 80px 16px; }
   .contact-form-container { padding: 24px 16px; }
+}
+
+/* ═══ SAFARI: never show the native play glyph on the hero video ═══ */
+.hero-video::-webkit-media-controls-start-playback-button,
+.hero-video::-webkit-media-controls-play-button,
+.hero-video::-webkit-media-controls-panel {
+  display: none !important;
+  -webkit-appearance: none;
 }
