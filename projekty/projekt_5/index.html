@@ -149,6 +149,19 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .8s var(--ease),t
   html.js .reveal{opacity:1;transform:none;}
   *{scroll-behavior:auto;}
 }
+  
+    /* publication callout + article lightbox */
+    .pub-callout{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:28px;padding:clamp(28px,4vw,52px);border:1px solid var(--border);margin-top:clamp(8px,1.2vw,18px);}
+    .pub-callout .pub-eyebrow{display:block;font-family:var(--font-heading);font-size:.62rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+    .pub-callout p{font-family:var(--font-display);font-weight:300;font-size:clamp(21px,2.4vw,32px);line-height:1.2;color:var(--text-dark);}
+    .pub-callout p em{font-style:italic;}
+    .pub-open{background:transparent;cursor:pointer;flex-shrink:0;}
+    .pub-lightbox{position:fixed;inset:0;z-index:2000;display:none;background:rgba(10,10,8,.94);overflow:auto;padding:clamp(24px,5vw,72px);-webkit-overflow-scrolling:touch;}
+    .pub-lightbox.open{display:flex;justify-content:center;align-items:flex-start;}
+    .pub-lightbox img{max-width:min(1000px,94vw);width:100%;height:auto;box-shadow:0 30px 80px rgba(0,0,0,.5);}
+    .pub-lightbox-close{position:fixed;top:clamp(14px,2vw,24px);right:clamp(18px,2.4vw,30px);width:48px;height:48px;background:none;border:none;color:#fff;font-size:2.2rem;line-height:1;cursor:pointer;z-index:2001;opacity:.82;transition:opacity .25s ease,transform .25s var(--ease);}
+    .pub-lightbox-close:hover{opacity:1;transform:scale(1.08);}
+    @media(max-width:640px){.pub-callout{flex-direction:column;align-items:flex-start;}}
   </style>
 </head>
 <body>
@@ -215,12 +228,18 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .8s var(--ease),t
         <figure class="g-item photo reveal"><img src="04.jpg" alt="Útulna v Krkonoších — vizualizace 4" loading="lazy" decoding="async"></figure>
         <figure class="g-item photo reveal"><img src="05.jpg" alt="Útulna v Krkonoších — vizualizace 5" loading="lazy" decoding="async"></figure>
 
-        <figure class="g-item plate reveal"><img src="vykres.jpg" alt="Útulna v Krkonoších — výkresová dokumentace 01" loading="lazy" decoding="async"><figcaption class="plabel"><span class="nm">Výkresová dokumentace</span><span class="cd">01</span></figcaption></figure>
-        <figure class="g-item plate reveal"><img src="vykres_02.jpg" alt="Útulna v Krkonoších — výkresová dokumentace 02" loading="lazy" decoding="async"><figcaption class="plabel"><span class="nm">Výkresová dokumentace</span><span class="cd">02</span></figcaption></figure>
+        <figure class="g-item plate reveal"><img src="vykres.jpg" alt="Útulna v Krkonoších — výkresová dokumentace" loading="lazy" decoding="async"><figcaption class="plabel"><span class="nm">Výkresová dokumentace</span><span class="cd">01</span></figcaption></figure>
+        <figure class="g-item plate reveal"><img src="vykres_02.jpg" alt="Útulna v Krkonoších — situace" loading="lazy" decoding="async"><figcaption class="plabel"><span class="nm">Situace</span></figcaption></figure>
 
-        <figure class="g-item plate full wide reveal"><img src="vykres_03.jpg" alt="Útulna v Krkonoších — výkresová dokumentace 03" loading="lazy" decoding="async"><figcaption class="plabel"><span class="nm">Výkresová dokumentace</span><span class="cd">03</span></figcaption></figure>
+        <figure class="g-item plate full wide reveal"><img src="vykres_04.jpg" alt="Útulna v Krkonoších — výkresová dokumentace" loading="lazy" decoding="async"><figcaption class="plabel"><span class="nm">Výkresová dokumentace</span><span class="cd">02</span></figcaption></figure>
 
-        <figure class="g-item plate full wide reveal"><img src="vykres_04.jpg" alt="Útulna v Krkonoších — výkresová dokumentace 04" loading="lazy" decoding="async"><figcaption class="plabel"><span class="nm">Výkresová dokumentace</span><span class="cd">04</span></figcaption></figure>
+        <div class="pub-callout reveal">
+          <div class="pub-callout-text">
+            <span class="pub-eyebrow">Publikace</span>
+            <p>O projektu vyšel článek v <em>Dřevařském magazínu</em>.</p>
+          </div>
+          <button class="btn pub-open" type="button" id="pubOpen"><span>Zobrazit článek</span></button>
+        </div>
       </div>
     </section>
 
@@ -252,10 +271,25 @@ html.js .reveal.in{opacity:1;transform:none;transition:opacity .8s var(--ease),t
     </div>
   </footer>
 
+  <div class="pub-lightbox" id="pubLightbox" aria-hidden="true" role="dialog" aria-label="Článek v Dřevařském magazínu">
+    <button class="pub-lightbox-close" id="pubClose" type="button" aria-label="Zavřít">&times;</button>
+    <img src="vykres_03.jpg" alt="Útulna v Krkonoších — článek v Dřevařském magazínu">
+  </div>
+
   <script>
   document.documentElement.classList.add('js');
   document.addEventListener('DOMContentLoaded', () => {
     const y = document.getElementById('copyright-year'); if (y) y.textContent = new Date().getFullYear();
+
+    const pubOpen = document.getElementById('pubOpen'), pubLb = document.getElementById('pubLightbox'), pubClose = document.getElementById('pubClose');
+    if (pubOpen && pubLb) {
+      const openLb = () => { pubLb.classList.add('open'); pubLb.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; };
+      const closeLb = () => { pubLb.classList.remove('open'); pubLb.setAttribute('aria-hidden','true'); document.body.style.overflow=''; };
+      pubOpen.addEventListener('click', openLb);
+      if (pubClose) pubClose.addEventListener('click', closeLb);
+      pubLb.addEventListener('click', (e) => { if (e.target === pubLb) closeLb(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
+    }
 
     const header = document.getElementById('header');
     const setHeader = () => header.classList.toggle('solid', window.scrollY > 40);
